@@ -1,0 +1,86 @@
+<%- include('partials/header') %>
+
+    <div class="dashboard-cards">
+        <div class="card stat-card">
+            <div class="card-icon blue"><i class="fas fa-folder-open"></i></div>
+            <div class="card-info">
+                <h3>OS Abertas/Em Andamento</h3>
+                <p class="stat-number">
+                    <%= osAbertas %>
+                </p>
+            </div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="card-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="card-info">
+                <h3>OS Finalizadas</h3>
+                <p class="stat-number">
+                    <%= osFinalizadas %>
+                </p>
+            </div>
+        </div>
+
+        <% if (typeof user !=='undefined' && (user.role==='admin' || user.role==='gerente' )) { %>
+            <div class="card stat-card">
+                <div class="card-icon purple"><i class="fas fa-dollar-sign"></i></div>
+                <div class="card-info">
+                    <h3>Total Faturado</h3>
+                    <p class="stat-number">R$ <%= valorFaturado.toFixed(2).replace('.', ',' ) %>
+                    </p>
+                </div>
+            </div>
+            <% } %>
+    </div>
+
+    <div class="card recent-orders">
+        <div class="card-header">
+            <h2>Últimas Ordens de Serviço</h2>
+            <a href="/os" class="btn btn-sm btn-primary">Ver Todas</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>OS</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (ultimasOrdens && ultimasOrdens.length> 0) { %>
+                        <% ultimasOrdens.forEach(os=> { %>
+                            <tr>
+                                <td><strong>
+                                        <%= os.numero_os %>
+                                    </strong></td>
+                                <td>
+                                    <%= os.cliente_nome %>
+                                </td>
+                                <td>
+                                    <% const dataParts=os.data_abertura.split('-'); const
+                                        dataBR=`${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`; %>
+                                        <%= dataBR %>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<%= os.status.replace(' ', '-').toLowerCase() %>">
+                                        <%= os.status %>
+                                    </span>
+                                </td>
+                                <td>R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %>
+                                </td>
+                            </tr>
+                            <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center">Nenhuma ordem de serviço cadastrada.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>

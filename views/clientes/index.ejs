@@ -1,0 +1,83 @@
+<%- include('../partials/header') %>
+
+    <div class="card">
+        <div class="card-header flex-between">
+            <form action="/clientes" method="GET" class="search-form">
+                <input type="text" id="busca_cpf" name="busca" placeholder="Buscar por CPF..." value="<%= busca %>"
+                    class="form-control" style="width: 300px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+                <% if(busca) { %>
+                    <a href="/clientes" class="btn btn-secondary">Limpar</a>
+                    <% } %>
+            </form>
+            <a href="/clientes/novo" class="btn btn-success"><i class="fas fa-plus"></i> Novo Cliente</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>CPF</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (clientes && clientes.length> 0) { %>
+                        <% clientes.forEach(cliente=> { %>
+                            <tr>
+                                <td><strong>
+                                        <%= cliente.nome %>
+                                    </strong></td>
+                                <td>
+                                    <%= cliente.telefone %>
+                                </td>
+                                <td>
+                                    <%= cliente.cpf %>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/os/nova?cliente=<%= cliente.id %>" class="btn btn-sm btn-success"
+                                            title="Nova OS" style="width: 45px; height: 32px; padding: 0;">+ OS</a>
+                                        <a href="/clientes/editar/<%= cliente.id %>" class="btn btn-sm btn-info"
+                                            title="Editar" style="width: 45px; height: 32px; padding: 0;"><i
+                                                class="fas fa-edit"></i></a>
+                                        <form action="/clientes/excluir/<%= cliente.id %>" method="POST"
+                                            style="display:inline; margin: 0; padding: 0;"
+                                            onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Excluir"
+                                                style="width: 45px; height: 32px; padding: 0;"><i
+                                                    class="fas fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center">Nenhum cliente cadastrado.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const buscaCpf = document.getElementById('busca_cpf');
+            if (buscaCpf) {
+                buscaCpf.addEventListener('input', function (e) {
+                    let val = e.target.value.replace(/\D/g, '');
+                    if (val.length > 11) val = val.slice(0, 11);
+                    val = val.replace(/(\d{3})(\d)/, '$1.$2');
+                    val = val.replace(/(\d{3})(\d)/, '$1.$2');
+                    val = val.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                    e.target.value = val;
+                });
+            }
+        });
+    </script>
+
+    <%- include('../partials/footer') %>

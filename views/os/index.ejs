@@ -1,0 +1,90 @@
+<%- include('../partials/header') %>
+
+    <div class="card">
+        <div class="card-header flex-between">
+            <form action="/os" method="GET" class="search-form multi-filter">
+                <select name="status" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todos os Status</option>
+                    <option value="Aberto" <%=statusFilter==='Aberto' ? 'selected' : '' %>>Aberto</option>
+                    <option value="Finalizado" <%=statusFilter==='Finalizado' ? 'selected' : '' %>>Finalizado</option>
+                </select>
+                <input type="text" name="busca" placeholder="Buscar OS ou Cliente..." value="<%= busca %>"
+                    class="form-control">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
+                <% if(statusFilter || busca) { %>
+                    <a href="/os" class="btn btn-secondary">Limpar</a>
+                    <% } %>
+            </form>
+            <a href="/os/nova" class="btn btn-success"><i class="fas fa-plus"></i> Nova OS</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>OS</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Aparelho</th>
+                        <th>Status</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (ordens && ordens.length> 0) { %>
+                        <% ordens.forEach(os=> { %>
+                            <tr>
+                                <td><strong>
+                                        <%= os.numero_os %>
+                                    </strong></td>
+                                <td>
+                                    <%= os.cliente_nome %>
+                                </td>
+                                <td>
+                                    <% const dataParts=os.data_abertura.split('-'); const
+                                        dataBR=`${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`; %>
+                                        <%= dataBR %>
+                                </td>
+                                <td>
+                                    <%= os.selecao_aparelho %>
+                                        <%= os.aparelho_modelo ? '- ' + os.aparelho_modelo : '' %>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<%= os.status.replace(' ', '-').toLowerCase() %>">
+                                        <%= os.status %>
+                                    </span>
+                                </td>
+                                <td>R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/os/imprimir/<%= os.id %>" target="_blank"
+                                            class="btn btn-sm btn-warning" title="Imprimir"><i
+                                                class="fas fa-print"></i></a>
+                                        <a href="/os/editar/<%= os.id %>" class="btn btn-sm btn-info" title="Editar"><i
+                                                class="fas fa-edit"></i></a>
+                                        <% if (typeof user !=='undefined' && (user.role==='admin' ||
+                                            user.role==='gerente' )) { %>
+                                            <form action="/os/excluir/<%= os.id %>" method="POST"
+                                                style="display:inline;"
+                                                onsubmit="return confirm('Tem certeza que deseja excluir esta Ordem de Serviço?');">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Excluir"><i
+                                                        class="fas fa-trash"></i></button>
+                                            </form>
+                                            <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center">Nenhuma ordem de serviço encontrada.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>

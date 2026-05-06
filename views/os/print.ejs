@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS <%= os.numero_os %>
+    </title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .print-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-info {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .header-logo {
+            width: 150px;
+            /* Largura fixa para logo no lado esquerdo */
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            max-height: 80px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .company-info {
+            font-size: 14px;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .os-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: #eee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-detalhes {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin-bottom: 25px;
+        }
+
+        .flex-grow-box {
+            flex-grow: 1;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .col {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .value {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .box-content {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            min-height: 60px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            border-radius: 4px;
+        }
+
+        .termos-container {
+            font-size: 10px;
+            color: #555;
+            margin-top: 15px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+        }
+
+        .termos-container h4 {
+            margin: 0 0 5px 0;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .termos-container ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .termos-container li {
+            margin-bottom: 3px;
+            line-height: 1.2;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid var(--text-color);
+            margin-top: 30px;
+            padding-top: 5px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .print-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        @media print {
+            @page {
+                margin: 5mm;
+            }
+
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+            }
+
+            body {
+                background: #fff;
+                padding: 0;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
+
+            .print-container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+                min-height: 98vh;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+            }
+
+            .print-btn {
+                display: none;
+            }
+
+            .header {
+                display: flex;
+                align-items: center;
+                padding-bottom: 5px;
+                margin-bottom: 10px;
+                border-bottom: 2px solid #000;
+            }
+
+            .header-info {
+                flex-grow: 1;
+                text-align: center;
+            }
+
+            .header-logo {
+                width: 150px;
+                text-align: left;
+            }
+
+            .header-logo img {
+                max-height: 60px;
+                width: auto;
+            }
+
+            .company-name {
+                font-size: 18px;
+                margin-bottom: 2px;
+            }
+
+            .section,
+            .section-detalhes {
+                margin-bottom: 5px;
+                page-break-inside: avoid;
+            }
+
+            .section-title {
+                font-size: 15px;
+                margin-bottom: 3px;
+                padding-bottom: 2px;
+            }
+
+            .box-content {
+                min-height: 20px;
+                padding: 3px;
+                font-size: 13px;
+                margin-bottom: 3px !important;
+            }
+
+            .footer {
+                margin-top: 20px;
+                gap: 25px;
+                page-break-inside: avoid;
+            }
+
+            .signature-line {
+                margin-top: 35px;
+                padding-top: 5px;
+            }
+
+            .os-title {
+                margin-bottom: 3px;
+                padding: 3px;
+                font-size: 17px;
+            }
+
+            .termos-container {
+                font-size: 11px;
+                margin-top: 5px;
+                padding-top: 3px;
+                page-break-inside: avoid;
+            }
+
+            .termos-container h4 {
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+
+            .termos-container li {
+                margin-bottom: 1px;
+            }
+
+            .col {
+                min-width: 0;
+                padding-right: 5px;
+            }
+
+            .label {
+                font-size: 11px;
+                margin-bottom: 1px;
+            }
+
+            .value {
+                font-size: 13px;
+                margin-bottom: 1px;
+            }
+
+            /* Key layout fix to let flex grow and stay side by side in print! */
+        }
+    </style>
+</head>
+
+<body>
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir Ordem de Serviço</button>
+
+    <div class="print-container">
+        <!-- CABEÇALHO -->
+        <div class="header">
+            <div class="header-logo">
+                <% if (config && config.logo_path) { %>
+                    <img src="<%= config.logo_path %>" alt="Logo da Empresa">
+                    <% } %>
+            </div>
+            <div class="header-info">
+                <div class="company-name"><strong>
+                        <%= config.empresa_nome || 'NOME DA EMPRESA' %>
+                    </strong></div>
+                <div class="company-info">
+                    <%= config.empresa_endereco || 'Endereço da Empresa' %><br>
+                        <%= config.empresa_telefone || '(00) 0000-0000' %>
+                </div>
+            </div>
+        </div>
+
+        <div class="os-title">
+            ORDEM DE SERVIÇO Nº <%= os.numero_os %>
+        </div>
+
+        <div class="section">
+            <div class="row">
+                <div class="col">
+                    <span class="label">Data de Abertura:</span>
+                    <div class="value">
+                        <% const dateParts=os.data_abertura.split('-'); const
+                            dataBR=`${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; %>
+                            <%= dataBR %>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">Data de Entrega:</span>
+                    <div class="value" style="margin-top: 10px;">
+                        <strong>____/____/_________</strong>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">Funcionário:</span>
+                    <div class="value">
+                        <%= os.funcionario_nome || 'Não informado' %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 class="section-title">Dados do Cliente</h3>
+            <div class="row">
+                <div class="col">
+                    <span class="label">Nome:</span>
+                    <div class="value">
+                        <%= os.cliente_nome %>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">Telefone:</span>
+                    <div class="value">
+                        <%= os.cliente_telefone || 'Não informado' %>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">CPF/CNPJ:</span>
+                    <div class="value">
+                        <%= os.cliente_cpf || 'Não informado' %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 class="section-title">Dados do Aparelho</h3>
+            <div class="row">
+                <div class="col">
+                    <span class="label">Tipo:</span>
+                    <div class="value">
+                        <%= os.selecao_aparelho %>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">Marca:</span>
+                    <div class="value">
+                        <%= os.aparelho_marca %>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">Modelo:</span>
+                    <div class="value">
+                        <%= os.aparelho_modelo %>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <span class="label">Cor:</span>
+                    <div class="value">
+                        <%= os.aparelho_cor || 'N/A' %>
+                    </div>
+                </div>
+                <div class="col">
+                    <span class="label">Número de Série:</span>
+                    <div class="value">
+                        <%= os.aparelho_ns || 'N/A' %>
+                    </div>
+                </div>
+                <% if(os.selecao_aparelho==='Celular' ) { %>
+                    <div class="col">
+                        <span class="label">IMEI:</span>
+                        <div class="value">
+                            <%= os.aparelho_imei || 'N/A' %>
+                        </div>
+                    </div>
+                    <% } else { %>
+                        <div class="col"></div>
+                        <% } %>
+            </div>
+        </div>
+
+        <div class="section-detalhes">
+            <h3 class="section-title">Detalhes do Serviço</h3>
+
+            <span class="label">Problema Relatado:</span>
+            <div class="box-content flex-grow-box" style="margin-bottom: 15px; white-space: normal !important;">
+                <% if(os.descricao_problema) { const linhasP=os.descricao_problema.trim().split(/\r?\n/); for(let i=0; i
+                    < linhasP.length; i++) { %>
+                    <%= linhasP[i] %><br>
+                        <% } } %>
+            </div>
+
+            <span class="label">Estado do Aparelho / Observações:</span>
+            <div class="box-content flex-grow-box" style="white-space: normal !important;">
+                <% if(os.observacoes_aparelho) { const linhasO=os.observacoes_aparelho.trim().split(/\r?\n/); for(let
+                    i=0; i < linhasO.length; i++) { %>
+                    <%= linhasO[i] %><br>
+                        <% } } else { %>
+                            Nenhuma observação.
+                            <% } %>
+            </div>
+
+        </div>
+
+        <div class="section">
+            <div class="row" style="justify-content: flex-end;">
+                <div style="font-size: 18px;">
+                    <span class="label" style="display:inline; font-size:18px;">Valor Total:</span>
+                    <strong>R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %></strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="termos-container">
+            <h4>Normas Importantes:</h4>
+            <ol>
+                <li>O prazo para elaboração do orçamento é de 5 à 15 dias úteis;</li>
+                <li>Não nos responsabilizamos por perda de dados, armazenamentos, agenda, jogos, músicas e etc.;</li>
+                <li>O prazo de retirada do aparelho é de até 30 dias, após esse prazo será cobrado uma taxa diária de
+                    R$1,00 pelo armazenamento;</li>
+                <li>Caso outra pessoa venha retirar o aparelho, será obrigatório a apresentação da OS com autorização
+                    prévia;</li>
+                <li>Garantia de 90 dias para todos os tipos de consertos;</li>
+                <li>Horário de funcionamento de Segunda a Sábado 10h00 às 22h00, Domingo 13h00 as 20h00;</li>
+                <li>Não sendo retirado o aparelho em até 90 dias, tal fato será considerado como abandono;</li>
+                <li>Os aparelhos dado como abandono, serão vendidos pelo valor do serviço contratado.</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <div class="footer-row">
+                <div class="signature-box">
+                    <div class="signature-line">Assinatura do Atendente (Entrada)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Assinatura do Cliente (Entrada)</div>
+                </div>
+            </div>
+            <div class="footer-row">
+                <div class="signature-box">
+                    <div class="signature-line">Assinatura do Atendente (Retirada)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Assinatura do Cliente (Retirada)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

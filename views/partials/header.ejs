@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %> - Sistema OS
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="<%= (typeof globalConfig !== 'undefined' && globalConfig.tema_escuro === 1) ? 'dark-theme' : '' %>">
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-tools"></i> Cobrinha Games</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav">
+                    <li class="nav-item"><a href="/dashboard"
+                            class="nav-link <%= typeof title !== 'undefined' && title === 'Dashboard' ? 'active' : '' %>"><i
+                                class="fas fa-chart-line" style="width: 20px; text-align: center;"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item"><a href="/clientes"
+                            class="nav-link <%= typeof title !== 'undefined' && title.includes('Cliente') ? 'active' : '' %>"><i
+                                class="fas fa-users" style="width: 20px; text-align: center;"></i> Clientes</a></li>
+                    <li class="nav-item"><a href="/os"
+                            class="nav-link <%= typeof title !== 'undefined' && title.includes('Ordens') ? 'active' : '' %>"><i
+                                class="fas fa-clipboard-list" style="width: 20px; text-align: center;"></i> Ordens de
+                            Serviço</a></li>
+                    <% if (typeof user !=='undefined' && (user.role==='admin' || user.role==='gerente' )) { %>
+                        <li class="nav-item"><a href="/funcionarios"
+                                class="nav-link <%= typeof title !== 'undefined' && title.includes('Funcionário') ? 'active' : '' %>"><i
+                                    class="fas fa-user-tie" style="width: 20px; text-align: center;"></i>
+                                Funcionários</a></li>
+                        <% } %>
+                            <% if (typeof user !=='undefined' && user.role==='admin' ) { %>
+                                <li class="nav-item"><a href="/configuracoes"
+                                        class="nav-link <%= typeof title !== 'undefined' && title.includes('Configuraç') ? 'active' : '' %>"><i
+                                            class="fas fa-cog" style="width: 20px; text-align: center;"></i>
+                                        Configurações</a></li>
+                                <% } %>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h1>
+                    <%= title %>
+                </h1>
+                <div class="user-info">
+                    <span><i class="fas fa-user-circle"></i>
+                        <%= (typeof user !=='undefined' ) ? user.nome : 'Usuário' %>
+                    </span>
+                    <a href="/logout"
+                        style="margin-left: 15px; color: #dc3545; text-decoration: none; font-size: 14px;"><i
+                            class="fas fa-sign-out-alt"></i> Sair</a>
+                </div>
+            </header>
+            <div class="content-wrapper">

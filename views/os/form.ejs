@@ -1,0 +1,156 @@
+<%- include('../partials/header') %>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <%= os ? 'Editar Ordem de Serviço' : 'Nova Ordem de Serviço' %>
+            </h2>
+            <a href="/os" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+
+        <form action="<%= os ? '/os/atualizar/' + os.id : '/os/salvar' %>" method="POST" class="form-grid">
+            <div class="form-group col-4">
+                <label for="numero_os">Número da OS *</label>
+                <input type="text" id="numero_os" name="numero_os" class="form-control"
+                    value="<%= os ? os.numero_os : numero_os_sugerido %>" readonly required>
+            </div>
+
+            <div class="form-group col-4">
+                <label for="data_abertura">Data de Abertura *</label>
+                <% const today=new Date().toISOString().split('T')[0]; %>
+                    <input type="date" id="data_abertura" name="data_abertura" class="form-control"
+                        value="<%= os ? os.data_abertura : today %>" <%=os ? 'readonly' : '' %> required>
+            </div>
+
+            <div class="form-group col-4" id="container_data_entrega" style="display: none;">
+                <label for="data_entrega">Data de Entrega</label>
+                <input type="date" id="data_entrega" name="data_entrega" class="form-control"
+                    value="<%= (os && os.data_entrega) ? os.data_entrega : '' %>">
+            </div>
+
+            <div class="form-group col-4">
+                <label for="status">Status</label>
+                <select id="status" name="status" class="form-control" onchange="toggleDataEntrega()" required>
+                    <option value="Aberto" <%=os && os.status==='Aberto' ? 'selected' : '' %>>Aberto</option>
+                    <option value="Finalizado" <%=os && os.status==='Finalizado' ? 'selected' : '' %>>Finalizado
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group col-4">
+                <label for="cliente_id">Cliente *</label>
+                <select id="cliente_id" name="cliente_id" class="form-control" <%- os
+                    ? 'style="pointer-events: none;" tabindex="-1"' : '' %> required>
+                    <option value="">Selecione um cliente...</option>
+                    <% clientes.forEach(c=> { %>
+                        <option value="<%= c.id %>" <%=(os && os.cliente_id===c.id) || (typeof clienteSelecionado
+                            !=='undefined' && clienteSelecionado==c.id) ? 'selected' : '' %>><%= c.nome %>
+                        </option>
+                        <% }) %>
+                </select>
+            </div>
+
+            <div class="form-group col-4">
+                <label for="funcionario_nome">Atendente/Responsável *</label>
+                <select id="funcionario_nome" name="funcionario_nome" class="form-control" <%- os
+                    ? 'style="pointer-events: none;" tabindex="-1"' : '' %> required>
+                    <option value="">Selecione quem está atendendo...</option>
+                    <% if (typeof funcionarios !=='undefined' ) { %>
+                        <% funcionarios.forEach(f=> { %>
+                            <option value="<%= f.nome_os %>" <%=os && os.funcionario_nome===f.nome_os ? 'selected' : ''
+                                %>><%= f.nome_os %>
+                            </option>
+                            <% }) %>
+                                <% } %>
+                </select>
+            </div>
+
+            <div class="form-section col-12">
+                <h3>Dados do Aparelho</h3>
+            </div>
+
+            <div class="form-group col-4">
+                <label for="selecao_aparelho">Tipo de Aparelho *</label>
+                <% let isOutro=false; if (os && os.selecao_aparelho && os.selecao_aparelho !=='Celular' &&
+                    os.selecao_aparelho !=='Controle' && os.selecao_aparelho !=='Console' ) { isOutro=true; } %>
+                    <select id="selecao_aparelho" name="selecao_aparelho" class="form-control"
+                        onchange="toggleCamposAparelho()" <%- os ? 'style="pointer-events: none;" tabindex="-1"' : '' %>
+                        required>
+                        <option value="">Selecione...</option>
+                        <option value="Celular" <%=os && os.selecao_aparelho==='Celular' ? 'selected' : '' %>>Celular
+                        </option>
+                        <option value="Controle" <%=os && os.selecao_aparelho==='Controle' ? 'selected' : '' %>>Controle
+                            (Console)</option>
+                        <option value="Console" <%=os && os.selecao_aparelho==='Console' ? 'selected' : '' %>>Console
+                        </option>
+                        <option value="Outro" <%=isOutro ? 'selected' : '' %>>Outro</option>
+                    </select>
+            </div>
+
+            <div class="form-group col-4 campo-outro" style="display: <%= isOutro ? 'block' : 'none' %>;">
+                <label for="aparelho_outro">Qual aparelho? *</label>
+                <input type="text" id="aparelho_outro" name="aparelho_outro" class="form-control"
+                    value="<%= isOutro ? os.selecao_aparelho : '' %>" <%=os ? 'readonly' : '' %>>
+            </div>
+
+            <div class="form-group col-4 campos-comuns">
+                <label for="aparelho_marca">Marca *</label>
+                <input type="text" id="aparelho_marca" name="aparelho_marca" class="form-control"
+                    value="<%= os ? os.aparelho_marca : '' %>" <%=os ? 'readonly' : '' %> required>
+            </div>
+
+            <div class="form-group col-4 campos-comuns">
+                <label for="aparelho_modelo">Modelo *</label>
+                <input type="text" id="aparelho_modelo" name="aparelho_modelo" class="form-control"
+                    value="<%= os ? os.aparelho_modelo : '' %>" <%=os ? 'readonly' : '' %> required>
+            </div>
+
+            <div class="form-group col-4 campos-comuns">
+                <label for="aparelho_cor">Cor</label>
+                <input type="text" id="aparelho_cor" name="aparelho_cor" class="form-control"
+                    value="<%= os ? os.aparelho_cor : '' %>" <%=os ? 'readonly' : '' %>>
+            </div>
+
+            <div class="form-group col-4 campos-comuns">
+                <label for="aparelho_ns">Número de Série</label>
+                <input type="text" id="aparelho_ns" name="aparelho_ns" class="form-control"
+                    value="<%= os ? os.aparelho_ns : '' %>" <%=os ? 'readonly' : '' %>>
+            </div>
+
+            <div class="form-group col-4 campo-celular" style="display: none;">
+                <label for="aparelho_imei">IMEI</label>
+                <input type="text" id="aparelho_imei" name="aparelho_imei" class="form-control"
+                    value="<%= os ? os.aparelho_imei : '' %>" <%=os ? 'readonly' : '' %>>
+            </div>
+
+            <div class="form-section col-12">
+                <h3>Serviço</h3>
+            </div>
+
+            <div class="form-group col-6">
+                <label for="descricao_problema">Descrição do Problema *</label>
+                <textarea id="descricao_problema" name="descricao_problema" class="form-control" rows="4" <%=os
+                    ? 'readonly' : '' %> required><%= os ? os.descricao_problema : '' %></textarea>
+            </div>
+
+            <div class="form-group col-6">
+                <label for="observacoes_aparelho">Estado/Observações do Aparelho</label>
+                <textarea id="observacoes_aparelho" name="observacoes_aparelho" class="form-control"
+                    rows="4"><%= os ? os.observacoes_aparelho : '' %></textarea>
+            </div>
+
+            <div class="form-group col-12">
+                <label for="valor">Valor do Serviço (R$)</label>
+                <input type="number" id="valor" name="valor" step="0.01" class="form-control"
+                    value="<%= os ? os.valor : '' %>">
+            </div>
+
+            <div class="form-group col-12 form-actions">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Ordem de
+                    Serviço</button>
+                <a href="/os" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <%- include('../partials/footer') %>
