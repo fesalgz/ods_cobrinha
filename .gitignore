@@ -45,3 +45,5 @@ Thumbs.db
 database/*.sqlite
 database/*.sqlite3
 database/*.db
+
+dist/*

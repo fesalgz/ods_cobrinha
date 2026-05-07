@@ -56,6 +56,23 @@ app.use((req, res, next) => {
 // Servir arquivos estáticos (colocado antes das rotas protegidas)
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configurar pasta de uploads externa no userData (onde tem permissão de escrita)
+const fs = require('fs');
+let userDataPath;
+if (process.versions && process.versions.electron) {
+    const { app: electronApp } = require('electron');
+    userDataPath = electronApp.getPath('userData');
+} else {
+    userDataPath = __dirname;
+}
+
+const uploadsPath = path.join(userDataPath, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+}
+// Serve a rota /uploads lendo da pasta do userData
+app.use('/uploads', express.static(uploadsPath));
+
 // Rotas abertas (login/logout)
 app.use('/', authRoutes);
 

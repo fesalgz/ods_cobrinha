@@ -5,10 +5,25 @@ const path = require('path');
 const fs = require('fs');
 const db = require('../database/db');
 
+// Configurar caminhos seguros baseados no userData do Electron
+let userDataPath;
+if (process.versions && process.versions.electron) {
+    const { app } = require('electron');
+    userDataPath = app.getPath('userData');
+} else {
+    userDataPath = path.resolve(__dirname, '..');
+}
+const uploadsPath = path.join(userDataPath, 'uploads');
+const dbFilePath = path.join(userDataPath, 'database', 'sistema.db');
+
+if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+}
+
 // Configurando o Multer para upload de imagens
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/')
+        cb(null, uploadsPath)
     },
     filename: function (req, file, cb) {
         // Renomear para logo.algumacoisa para facilidade ou usar original
@@ -40,9 +55,8 @@ router.get('/', (req, res) => {
 
         let dbSize = "Desconhecido";
         try {
-            const dbPath = path.join(__dirname, '../database/sistema.db');
-            if (fs.existsSync(dbPath)) {
-                const stats = fs.statSync(dbPath);
+            if (fs.existsSync(dbFilePath)) {
+                const stats = fs.statSync(dbFilePath);
                 const sizeInBytes = stats.size;
                 if (sizeInBytes < 1024 * 1024) {
                     dbSize = (sizeInBytes / 1024).toFixed(2) + " KB";
@@ -99,8 +113,7 @@ router.post('/salvar', upload.single('logo'), (req, res) => {
 
 // Download do Banco de Dados
 router.get('/backup', (req, res) => {
-    const dbPath = path.join(__dirname, '../database/sistema.db');
-    res.download(dbPath, 'backup_sistema.db', (err) => {
+    res.download(dbFilePath, 'backup_sistema.db', (err) => {
         if (err) {
             console.error("Erro ao baixar backup:", err);
             res.status(500).send("Erro ao baixar arquivo do banco.");
@@ -137,7 +150,7 @@ router.post('/limpar-clientes', (req, res) => {
 });
 
 // Restaurar Banco de Dados (Upload)
-const uploadDb = multer({ dest: 'public/uploads/' }); // Salva temp na pasta de uploads
+const uploadDb = multer({ dest: uploadsPath }); // Salva temp na pasta de uploads
 
 router.post('/restaurar', uploadDb.single('banco'), (req, res) => {
     if (!req.file) {
@@ -145,7 +158,7 @@ router.post('/restaurar', uploadDb.single('banco'), (req, res) => {
     }
 
     const tempPath = req.file.path;
-    const targetPath = path.join(__dirname, '../database/sistema.db');
+    const targetPath = dbFilePath;
 
     // Fechar a conexão do banco primeiro para o Windows permitir a substituição do arquivo
     db.close((err) => {

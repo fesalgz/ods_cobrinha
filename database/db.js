@@ -1,7 +1,24 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = path.resolve(__dirname, 'sistema.db');
+let userDataPath;
+// Detecta se está rodando dentro do Electron
+if (process.versions && process.versions.electron) {
+    const { app } = require('electron');
+    userDataPath = app.getPath('userData');
+} else {
+    // Se estiver rodando via node (desenvolvimento), usa a pasta raiz do projeto
+    userDataPath = path.resolve(__dirname, '..');
+}
+
+// Garante que a pasta database existe no destino
+const dbDir = path.join(userDataPath, 'database');
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
+
+const dbPath = path.join(dbDir, 'sistema.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {

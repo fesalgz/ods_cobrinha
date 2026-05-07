@@ -1,8 +1,9 @@
 {
-  "name": "ordens-de-servico",
+  "name": "ordens-de-servico-cobrinha",
   "version": "1.0.0",
-  "description": "Sistema de Ordem de Serviço",
+  "description": "Ordens de Serviço - Cobrinha",
   "main": "main.js",
+  "author": "Felipe Salgado",
   "scripts": {
     "start": "node server.js",
     "electron:start": "electron .",
@@ -28,7 +29,8 @@
       "output": "dist"
     },
     "win": {
-      "icon": "icon.png"
+      "icon": "icon.png",
+      "target": "nsis"
     }
   }
 }
