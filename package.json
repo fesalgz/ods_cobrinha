@@ -1,10 +1,13 @@
 {
-  "name": "os-system",
+  "name": "ordens-de-servico",
   "version": "1.0.0",
   "description": "Sistema de Ordem de Serviço",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "electron:start": "electron .",
+    "electron:pack": "electron-builder --dir",
+    "electron:build": "electron-builder"
   },
   "dependencies": {
     "ejs": "^3.1.9",
@@ -13,5 +16,19 @@
     "method-override": "^3.0.0",
     "multer": "^2.1.1",
     "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ordensdeservico.app",
+    "productName": "Ordens de Serviço",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "icon.png"
+    }
   }
 }
