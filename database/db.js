@@ -86,6 +86,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
             db.run(`
                 CREATE TABLE IF NOT EXISTS configuracoes (
                     id INTEGER PRIMARY KEY DEFAULT 1,
+                    nome_sistema TEXT DEFAULT 'Cobrinha Games',
                     empresa_nome TEXT,
                     empresa_endereco TEXT,
                     empresa_telefone TEXT,
@@ -96,7 +97,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 if (!err) {
                     db.get("SELECT COUNT(*) as count FROM configuracoes", [], (err, row) => {
                         if (row && row.count === 0) {
-                            db.run(`INSERT INTO configuracoes (id, empresa_nome, empresa_endereco, empresa_telefone, logo_path) VALUES (1, 'NOME DA EMPRESA LTDA', 'Rua Exemplo, 123 - Centro - Cidade/UF', 'Telefone: (00) 0000-0000', null)`);
+                            db.run(`INSERT INTO configuracoes (id, nome_sistema, empresa_nome, empresa_endereco, empresa_telefone, logo_path) VALUES (1, 'Cobrinha Games', 'NOME DA EMPRESA LTDA', 'Rua Exemplo, 123 - Centro - Cidade/UF', 'Telefone: (00) 0000-0000', null)`);
                         }
                     });
                 }
@@ -106,6 +107,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
             // Adicionar colunas novas em BDs antigos
             db.run("ALTER TABLE configuracoes ADD COLUMN tema_escuro INTEGER DEFAULT 0", (err) => { });
+            db.run("ALTER TABLE configuracoes ADD COLUMN nome_sistema TEXT DEFAULT 'Cobrinha Games'", (err) => { });
         });
     }
 });

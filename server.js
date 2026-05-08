@@ -81,6 +81,24 @@ app.get('/', (req, res) => {
     res.redirect('/dashboard');
 });
 
+// Alternar tema globalmente (Acessível a qualquer usuário logado)
+app.post('/toggle-tema', ensureAuthenticated, (req, res) => {
+    db.get('SELECT tema_escuro FROM configuracoes WHERE id = 1', [], (err, config) => {
+        if (!err && config) {
+            const novoTema = config.tema_escuro === 1 ? 0 : 1;
+            db.run('UPDATE configuracoes SET tema_escuro = ? WHERE id = 1', [novoTema], (updateErr) => {
+                if (updateErr) {
+                    res.status(500).json({ success: false, error: updateErr });
+                } else {
+                    res.json({ success: true, tema_escuro: novoTema });
+                }
+            });
+        } else {
+            res.status(500).json({ success: false, error: 'Config not found' });
+        }
+    });
+});
+
 // Rotas protegidas
 app.use('/dashboard', ensureAuthenticated, dashboardRoutes);
 app.use('/clientes', ensureAuthenticated, clientesRoutes);
