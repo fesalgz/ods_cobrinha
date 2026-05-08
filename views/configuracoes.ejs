@@ -1,127 +1,153 @@
 <%- include('partials/header') %>
 
-    <div class="container" style="margin-top: 20px;">
-        <h2><i class="fas fa-cog"></i> Configurações do Sistema</h2>
-        <p class="text-muted">Ajuste os dados que aparecem no cabeçalho das ordens de serviço impressas.</p>
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <div class="page-header" style="margin-bottom: 30px;">
+            <h1
+                style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow);">
+                <i class="fas fa-cog"></i> Painel de Controle e Configurações
+            </h1>
+            <p class="text-muted">Gerencie as diretrizes do sistema e banco de dados.</p>
+        </div>
 
-        <div class="card" style="max-width: 600px; margin-top: 20px;">
-            <div class="card-body">
-                <form action="/configuracoes/salvar" method="POST" enctype="multipart/form-data">
-
-                    <div class="form-group mb-3">
-                        <label>Nome da Empresa</label>
-                        <input type="text" name="empresa_nome" class="form-control"
-                            value="<%= config.empresa_nome || '' %>" required>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label>Endereço Completo</label>
-                        <input type="text" name="empresa_endereco" class="form-control"
-                            value="<%= config.empresa_endereco || '' %>"
-                            placeholder="Ex: Rua Exemplo, 123 - Centro - Cidade/UF" required>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label>Telefone de Contato</label>
-                        <input type="text" name="empresa_telefone" class="form-control"
-                            value="<%= config.empresa_telefone || '' %>" required>
-                    </div>
-            </div>
-
-            <hr>
-
-            <div class="form-group mb-4 mt-3 p-3 bg-light rounded border">
-                <div class="form-check form-switch d-flex align-items-center">
-                    <input class="form-check-input" type="checkbox" id="tema_escuro" name="tema_escuro"
-                        style="width: 40px; height: 20px; cursor: pointer;" <%=config.tema_escuro===1 ? 'checked' : ''
-                        %>>
-                    <label class="form-check-label ms-3" for="tema_escuro" style="cursor: pointer;">
-                        <strong><i class="fas fa-moon"></i> Ativar Modo Escuro (Dark Mode)</strong>
-                    </label>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px;">
+            <!-- Card de Configurações Gerais -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header">
+                    <h2><i class="fas fa-sliders-h" style="color: var(--primary);"></i> Identidade do Sistema</h2>
                 </div>
-                <small class="text-muted d-block mt-2">Ative essa opção para aplicar um tema escuro em todo o
-                    sistema, ideal para descansar a visão.</small>
+                <div class="card-body">
+                    <form action="/configuracoes/salvar" method="POST" enctype="multipart/form-data">
+                        <div class="form-group mb-3">
+                            <label
+                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nome
+                                do Sistema (Menu Lateral)</label>
+                            <input type="text" name="nome_sistema" class="form-control"
+                                value="<%= config.nome_sistema || 'Cobrinha Games' %>" required>
+                            <small class="text-muted">Identificação exibida na barra lateral.</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label
+                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nome
+                                da Empresa (Impressão de OS)</label>
+                            <input type="text" name="empresa_nome" class="form-control"
+                                value="<%= config.empresa_nome || '' %>" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label
+                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Endereço
+                                Completo</label>
+                            <input type="text" name="empresa_endereco" class="form-control"
+                                value="<%= config.empresa_endereco || '' %>" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label
+                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Telefone
+                                de Contato</label>
+                            <input type="text" name="empresa_telefone" class="form-control"
+                                value="<%= config.empresa_telefone || '' %>" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label
+                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Logo
+                                da Empresa</label>
+                            <% if (config.logo_path) { %>
+                                <div
+                                    style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: inline-block;">
+                                    <img src="<%= config.logo_path %>" alt="Logo Atual"
+                                        style="max-height: 60px; display: block;">
+                                </div>
+                                <% } %>
+                                    <input type="file" name="logo" class="form-control" accept="image/*"
+                                        style="padding: 6px;">
+                                    <small class="text-muted">Formatos aceitos: PNG, JPG.</small>
+                        </div>
+
+                        <div class="form-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i
+                                    class="fas fa-save"></i> Atualizar Configurações</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <hr>
-
-            <div class="form-group mb-3">
-                <label>Logo da Empresa</label><br>
-                <% if (config.logo_path) { %>
-                    <div style="margin-bottom: 15px;">
-                        <img src="<%= config.logo_path %>" alt="Logo Atual"
-                            style="max-height: 80px; border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
-                        <br><small class="text-muted">Logo Atual</small>
+            <!-- Card de Banco de Dados -->
+            <div class="card"
+                style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="card-header" style="border-bottom-color: rgba(229, 62, 62, 0.2);">
+                        <h2 style="color: #fc8181;"><i class="fas fa-database"></i> Núcleo do Sistema (DB)</h2>
                     </div>
-                    <% } %>
-                        <input type="file" name="logo" class="form-control-file" accept="image/*">
-                        <small class="form-text text-muted">Selecione uma imagem (.png, .jpg) para atualizar a
-                            logo. Deixe em branco para manter a atual.</small>
+                    <div class="card-body">
+                        <div
+                            style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                            <p style="margin-bottom: 0;"><strong>Status de Armazenamento:</strong>
+                                <span class="badge"
+                                    style="background: rgba(234, 179, 8, 0.15); color: #ecc94b; border: 1px solid rgba(234, 179, 8, 0.2);">
+                                    <%= typeof dbSize !=='undefined' ? dbSize : 'Desconhecido' %>
+                                </span>
+                            </p>
+                        </div>
+
+                        <h3
+                            style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; color: var(--text-main);">
+                            Ações de Manutenção</h3>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                            <!-- Backup -->
+                            <a href="/configuracoes/backup" class="btn btn-success" style="width: 100%;">
+                                <i class="fas fa-download"></i> Extrair Backup (.db)
+                            </a>
+
+                            <!-- Apagar OS -->
+                            <form action="/configuracoes/limpar-os" method="POST"
+                                onsubmit="return confirm('TEM CERTEZA ABSOLUTA?\n\nIsso irá apagar TODAS as Ordens de Serviço cadastradas permanentemente!');"
+                                style="width: 100%;">
+                                <button type="submit" class="btn btn-warning" style="width: 100%;">
+                                    <i class="fas fa-trash-alt"></i> Apagar Todas as OS
+                                </button>
+                            </form>
+
+                            <!-- Apagar Clientes -->
+                            <form action="/configuracoes/limpar-clientes" method="POST"
+                                onsubmit="return confirm('ATENÇÃO: TEM CERTEZA?\n\nIsso irá apagar a lista de TODOS os Clientes cadastrados permanentemente!');"
+                                style="width: 100%;">
+                                <button type="submit" class="btn btn-danger" style="width: 100%;">
+                                    <i class="fas fa-users-slash"></i> Apagar Todos os Clientes
+                                </button>
+                            </form>
+                        </div>
+
+                        <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                            <h3
+                                style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; color: var(--text-main);">
+                                Restauração de Emergência</h3>
+                            <form action="/configuracoes/restaurar" method="POST" enctype="multipart/form-data"
+                                onsubmit="return confirm('ATENÇÃO EXTREMA: \n\nA restauração apaga absolutamente todos os dados atuais do seu sistema de hoje e os substitui pelo arquivo enviado. Só confirme se tiver certeza absoluta do histórico!');">
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="file" name="banco" class="form-control" accept=".db,.sqlite" required
+                                        style="padding: 6px; flex: 1;">
+                                    <button type="submit" class="btn btn-primary" style="text-transform: none;">
+                                        <i class="fas fa-upload"></i> Enviar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="padding: 15px; background: rgba(229, 62, 62, 0.05); border-radius: 8px; border: 1px solid rgba(229, 62, 62, 0.1); margin-top: 20px;">
+                    <small style="color: #fc8181; display: flex; gap: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-top: 3px;"></i>
+                        <span>Ações de excluir são permanentes. Recomenda-se realizar um backup antes de qualquer
+                            operação destrutiva.</span>
+                    </small>
+                </div>
             </div>
-
-            <hr>
-
-            <div class="form-group mt-4">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar
-                    Configurações</button>
-            </div>
-            </form>
         </div>
-    </div>
-    <div class="card" style="max-width: 600px; margin-top: 30px;">
-        <div class="card-header bg-danger text-white">
-            <i class="fas fa-database"></i> Gerenciamento do Banco de Dados
-        </div>
-        <div class="card-body">
-            <p><strong>Tamanho Atual do Banco:</strong> <span class="badge bg-secondary">
-                    <%= typeof dbSize !=='undefined' ? dbSize : 'Desconhecido' %>
-                </span></p>
-
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                <!-- Backup -->
-                <a href="/configuracoes/backup" class="btn btn-success">
-                    <i class="fas fa-download"></i> Fazer Backup do Banco (.db)
-                </a>
-
-                <!-- Apagar OS -->
-                <form action="/configuracoes/limpar-os" method="POST"
-                    onsubmit="return confirm('TEM CERTEZA ABSOLUTA?\n\nIsso irá apagar TODAS as Ordens de Serviço cadastradas permanentemente e não poderá ser desfeito!');"
-                    style="display:inline;">
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-trash-alt"></i> Apagar Todas as OS
-                    </button>
-                </form>
-
-                <!-- Apagar Clientes -->
-                <form action="/configuracoes/limpar-clientes" method="POST"
-                    onsubmit="return confirm('ATENÇÃO: TEM CERTEZA?\n\nIsso irá apagar a lista de TODOS os Clientes cadastrados permanentemente!');"
-                    style="display:inline;">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-users-slash"></i> Apagar Todos os Clientes
-                    </button>
-                </form>
-            </div>
-
-            <hr class="mt-4 mb-3">
-
-            <h6 class="mb-2"><strong>Restaurar Backup Anterior</strong></h6>
-            <form action="/configuracoes/restaurar" method="POST" enctype="multipart/form-data"
-                class="d-flex flex-wrap align-items-center gap-2"
-                onsubmit="return confirm('ATENÇÃO EXTREMA: \n\nA restauração apaga absolutamente todos os dados atuais do seu sistema de hoje e os substitui pelo arquivo enviado. Só confirme se tiver certeza absoluta do histórico!');">
-                <input type="file" name="banco" class="form-control form-control-sm" accept=".db,.sqlite" required
-                    style="max-width: 300px;">
-                <button type="submit" class="btn btn-primary btn-sm" style="height: 31px;">
-                    <i class="fas fa-upload"></i> Subir Backup
-                </button>
-            </form>
-
-            <small class="text-muted d-block mt-4">
-                <i class="fas fa-info-circle"></i> O botão de "Apagar" realiza a limpeza das tabelas e imediatamente
-                otimiza o peso do arquivo devolvendo espaço ao computador. Faça backup sempre antes de clicar.
-            </small>
-        </div>
-    </div>
-
     </div>
 
     <%- include('partials/footer') %>
