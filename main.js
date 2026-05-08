@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
+const { autoUpdater } = require('electron-updater');
 
 // Inicia o servidor Node.js/Express em segundo plano
 require('./server.js');
@@ -33,8 +34,34 @@ function createWindow() {
   });
 }
 
+autoUpdater.on("checking-for-update", () => {
+  console.log("Procurando atualização...");
+});
+
+autoUpdater.on("update-available", () => {
+  console.log("Atualização disponível!");
+});
+
+autoUpdater.on("update-not-available", () => {
+  console.log("Sem atualização.");
+});
+
+autoUpdater.on("error", (err) => {
+  console.log("Erro no updater:", err);
+});
+
+autoUpdater.on("download-progress", (progressObj) => {
+  console.log("Baixando:", progressObj.percent);
+});
+
+autoUpdater.on("update-downloaded", () => {
+  console.log("Atualização baixada!");
+});
+
 app.whenReady().then(() => {
   createWindow();
+
+  autoUpdater.checkForUpdatesAndNotify();
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
