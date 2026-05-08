@@ -78,11 +78,8 @@ router.get('/', (req, res) => {
 
 // Salvar Configurações
 router.post('/salvar', upload.single('logo'), (req, res) => {
-    let { empresa_nome, empresa_endereco, empresa_telefone, tema_escuro } = req.body;
+    let { nome_sistema, empresa_nome, empresa_endereco, empresa_telefone } = req.body;
     let logo_path = null;
-
-    // Converte de "on" (checkbox marcado) para 1, caso contrário 0
-    tema_escuro = tema_escuro ? 1 : 0;
 
     if (req.file) {
         logo_path = '/uploads/' + req.file.filename;
@@ -91,8 +88,8 @@ router.post('/salvar', upload.single('logo'), (req, res) => {
     // Se uma nova logo foi enviada, atualiza com a logo
     if (logo_path) {
         db.run(
-            `UPDATE configuracoes SET empresa_nome = ?, empresa_endereco = ?, empresa_telefone = ?, tema_escuro = ?, logo_path = ? WHERE id = 1`,
-            [empresa_nome, empresa_endereco, empresa_telefone, tema_escuro, logo_path],
+            `UPDATE configuracoes SET nome_sistema = ?, empresa_nome = ?, empresa_endereco = ?, empresa_telefone = ?, logo_path = ? WHERE id = 1`,
+            [nome_sistema, empresa_nome, empresa_endereco, empresa_telefone, logo_path],
             (err) => {
                 if (err) console.error(err);
                 res.redirect('/configuracoes');
@@ -101,8 +98,8 @@ router.post('/salvar', upload.single('logo'), (req, res) => {
     } else {
         // Se nenhuma logo foi enviada, ignora a coluna logo_path
         db.run(
-            `UPDATE configuracoes SET empresa_nome = ?, empresa_endereco = ?, empresa_telefone = ?, tema_escuro = ? WHERE id = 1`,
-            [empresa_nome, empresa_endereco, empresa_telefone, tema_escuro],
+            `UPDATE configuracoes SET nome_sistema = ?, empresa_nome = ?, empresa_endereco = ?, empresa_telefone = ? WHERE id = 1`,
+            [nome_sistema, empresa_nome, empresa_endereco, empresa_telefone],
             (err) => {
                 if (err) console.error(err);
                 res.redirect('/configuracoes');

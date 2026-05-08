@@ -8,7 +8,7 @@
         <%= title %> - Sistema OS
     </title>
     <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -16,7 +16,7 @@
     <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2><i class="fas fa-tools"></i> Cobrinha Games</h2>
+                <h2><i class="fas fa-tools"></i> <%= (typeof globalConfig !== 'undefined' && globalConfig.nome_sistema) ? globalConfig.nome_sistema : 'Cobrinha Games' %></h2>
             </div>
             <nav class="sidebar-nav">
                 <ul class="nav">
@@ -52,13 +52,33 @@
                 <h1>
                     <%= title %>
                 </h1>
-                <div class="user-info">
-                    <span><i class="fas fa-user-circle"></i>
+                <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
+                    <a href="#" onclick="toggleTema(); return false;" title="Alternar Modo Escuro"
+                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center;">
+                        <i class="fas fa-moon"></i>
+                    </a>
+                    <span style="display: flex; align-items: center; gap: 5px;"><i class="fas fa-user-circle"></i>
                         <%= (typeof user !=='undefined' ) ? user.nome : 'Usuário' %>
                     </span>
                     <a href="/logout"
-                        style="margin-left: 15px; color: #dc3545; text-decoration: none; font-size: 14px;"><i
+                        style="color: #dc3545; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 5px;"><i
                             class="fas fa-sign-out-alt"></i> Sair</a>
                 </div>
             </header>
             <div class="content-wrapper">
+                <script>
+                    function toggleTema() {
+                        fetch('/toggle-tema', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (data.tema_escuro === 1) {
+                                        document.body.classList.add('dark-theme');
+                                    } else {
+                                        document.body.classList.remove('dark-theme');
+                                    }
+                                }
+                            })
+                            .catch(err => console.error('Erro ao alternar tema', err));
+                    }
+                </script>
