@@ -58,8 +58,6 @@ autoUpdater.on("update-downloaded", () => {
   console.log("Atualização baixada!");
 });
 
-<<<<<<< Updated upstream
-=======
 autoUpdater.on("checking-for-update", () => {
   console.log("Procurando atualização...");
 });
@@ -96,7 +94,6 @@ autoUpdater.on("update-downloaded", async () => {
   }
 });
 
->>>>>>> Stashed changes
 app.whenReady().then(() => {
   createWindow();
 
