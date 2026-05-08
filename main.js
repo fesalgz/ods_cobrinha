@@ -33,6 +33,45 @@ function createWindow() {
   });
 }
 
+<<<<<<< Updated upstream
+=======
+autoUpdater.on("checking-for-update", () => {
+  console.log("Procurando atualização...");
+});
+
+autoUpdater.on("update-available", () => {
+  console.log("Atualização disponível!");
+});
+
+autoUpdater.on("update-not-available", () => {
+  console.log("Sem atualização.");
+});
+
+autoUpdater.on("error", (err) => {
+  console.log("Erro no updater:", err);
+});
+
+autoUpdater.on("download-progress", (progressObj) => {
+  console.log("Baixando:", progressObj.percent);
+});
+
+autoUpdater.on("update-downloaded", async () => {
+  console.log("Atualização baixada!");
+
+  const resposta = await dialog.showMessageBox({
+    type: "info",
+    buttons: ["Reiniciar agora", "Depois"],
+    title: "Atualização pronta",
+    message: "A atualização foi baixada com sucesso.",
+    detail: "Deseja reiniciar o aplicativo agora?"
+  });
+
+  if (resposta.response === 0) {
+    autoUpdater.quitAndInstall();
+  }
+});
+
+>>>>>>> Stashed changes
 app.whenReady().then(() => {
   createWindow();
 
