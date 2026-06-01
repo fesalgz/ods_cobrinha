@@ -6,16 +6,13 @@ const db = require('./database/db');
 const session = require('express-session');
 const methodOverride = require('method-override');
 
-// Importar middlewares
-const { ensureAuthenticated, ensureAdmin, ensureAdminOrGerente } = require('./middlewares/authMiddleware');
-
 // Importar rotas
 const clientesRoutes = require('./routes/clientes');
 const osRoutes = require('./routes/os');
 const dashboardRoutes = require('./routes/dashboard');
-const authRoutes = require('./routes/auth');
 const funcionariosRoutes = require('./routes/funcionarios');
 const configuracoesRoutes = require('./routes/configuracoes');
+const etiquetasRoutes = require('./routes/etiquetas');
 
 const app = express();
 const PORT = 3000;
@@ -40,8 +37,15 @@ app.use(session({
 }));
 app.use(methodOverride('_method'));
 
-// Middleware global para injetar configurações e status em todas as telas (Ex: Tema Escuro, Cores de Status)
+// Middleware global para injetar o usuário mockado (Loja), configurações e status em todas as telas
 app.use((req, res, next) => {
+    // Injetar perfil mockado de "Loja" com acesso total (admin) para compatibilidade com as views e rotas
+    const lojaUser = { id: 1, username: 'loja', role: 'admin', nome: 'Loja', nome_os: 'Loja' };
+    if (req.session) {
+        req.session.user = lojaUser;
+    }
+    res.locals.user = lojaUser;
+
     db.get('SELECT * FROM configuracoes WHERE id = 1', [], (err, config) => {
         if (err) {
             console.error("Erro no middleware global de config:", err);
@@ -73,16 +77,13 @@ if (!fs.existsSync(uploadsPath)) {
 // Serve a rota /uploads lendo da pasta do userData
 app.use('/uploads', express.static(uploadsPath));
 
-// Rotas abertas (login/logout)
-app.use('/', authRoutes);
-
-// Redirecionamento da raiz
+// Redirecionamento da raiz diretamente para o dashboard
 app.get('/', (req, res) => {
     res.redirect('/dashboard');
 });
 
-// Alternar tema globalmente (Acessível a qualquer usuário logado)
-app.post('/toggle-tema', ensureAuthenticated, (req, res) => {
+// Alternar tema globalmente
+app.post('/toggle-tema', (req, res) => {
     db.get('SELECT tema_escuro FROM configuracoes WHERE id = 1', [], (err, config) => {
         if (!err && config) {
             const novoTema = config.tema_escuro === 1 ? 0 : 1;
@@ -99,12 +100,13 @@ app.post('/toggle-tema', ensureAuthenticated, (req, res) => {
     });
 });
 
-// Rotas protegidas
-app.use('/dashboard', ensureAuthenticated, dashboardRoutes);
-app.use('/clientes', ensureAuthenticated, clientesRoutes);
-app.use('/os', ensureAuthenticated, osRoutes);
-app.use('/funcionarios', ensureAuthenticated, ensureAdminOrGerente, funcionariosRoutes);
-app.use('/configuracoes', ensureAuthenticated, ensureAdmin, configuracoesRoutes);
+// Rotas do sistema
+app.use('/dashboard', dashboardRoutes);
+app.use('/clientes', clientesRoutes);
+app.use('/os', osRoutes);
+app.use('/funcionarios', funcionariosRoutes);
+app.use('/configuracoes', configuracoesRoutes);
+app.use('/etiquetas', etiquetasRoutes);
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);

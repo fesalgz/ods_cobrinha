@@ -17,14 +17,6 @@
                             <input type="text" name="nome_os" class="form-control" required>
                         </div>
                         <div style="flex:1">
-                            <label>Usuário de Login</label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div style="flex:1">
-                            <label>Senha</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <div style="flex:1">
                             <label>Cargo</label>
                             <select name="role" class="form-control">
                                 <option value="atendente">Atendente</option>
@@ -46,7 +38,6 @@
                     <th>ID</th>
                     <th>Nome</th>
                     <th>Nome na OS</th>
-                    <th>Usuário</th>
                     <th>Cargo</th>
                     <th>Ações</th>
                 </tr>
@@ -62,9 +53,6 @@
                         </td>
                         <td>
                             <%= func.nome_os || '-' %>
-                        </td>
-                        <td>
-                            <%= func.username %>
                         </td>
                         <td>
                             <% if (func.role==='admin' ) { %>
