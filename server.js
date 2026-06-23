@@ -114,6 +114,38 @@ app.use('/funcionarios', funcionariosRoutes);
 app.use('/configuracoes', configuracoesRoutes);
 app.use('/etiquetas', etiquetasRoutes);
 
+// Rotas de atualização
+app.get('/api/updater/status', (req, res) => {
+    res.json({ status: global.updateStatus || 'none' });
+});
+
+app.post('/api/updater/check', (req, res) => {
+    if (global.autoUpdater) {
+        global.updateStatus = 'checking';
+        global.autoUpdater.checkForUpdates().catch(err => {
+            console.error(err);
+            global.updateStatus = 'error';
+        });
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ success: false, message: 'Updater indisponível' });
+    }
+});
+
+app.post('/api/updater/download', (req, res) => {
+    if (global.autoUpdater) {
+        global.updateStatus = 'downloading';
+        global.autoUpdater.downloadUpdate().catch(err => {
+            console.error(err);
+            global.updateStatus = 'error';
+        });
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ success: false, message: 'Updater indisponível' });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
