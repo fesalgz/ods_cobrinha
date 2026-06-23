@@ -352,6 +352,11 @@ label {
     color: var(--text-main);
 }
 
+input.form-control, select.form-control {
+    height: 42px;
+    box-sizing: border-box;
+}
+
 .form-control:focus {
     outline: none;
     border-color: var(--primary);
@@ -559,4 +564,40 @@ label {
         flex-direction: column;
         align-items: stretch;
     }
+}
+
+/* Alertas de validação */
+.alert {
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-danger {
+    background-color: rgba(229, 62, 62, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(229, 62, 62, 0.2);
+}
+
+body.dark-theme .alert-danger {
+    background-color: rgba(229, 62, 62, 0.15);
+    color: #fc8181;
+    border-color: rgba(229, 62, 62, 0.3);
+}
+
+.alert-success {
+    background-color: rgba(56, 161, 105, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(56, 161, 105, 0.2);
+}
+
+body.dark-theme .alert-success {
+    background-color: rgba(56, 161, 105, 0.15);
+    color: #68d391;
+    border-color: rgba(56, 161, 105, 0.3);
 }

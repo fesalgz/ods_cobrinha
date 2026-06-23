@@ -14,20 +14,48 @@ exports.listar = (req, res) => {
 };
 
 exports.formulario = (req, res) => {
-    res.render('clientes/form', { title: 'Novo Cliente', cliente: null });
+    res.render('clientes/form', { title: 'Novo Cliente', cliente: null, error: null });
 };
 
 exports.salvar = (req, res) => {
     const { nome, telefone, cpf, observacoes } = req.body;
-    db.run(
-        `INSERT INTO clientes (nome, telefone, cpf, observacoes) VALUES (?, ?, ?, ?)`,
-        [nome, telefone, cpf, observacoes],
-        function (err) {
+    const cleanCpf = cpf ? cpf.replace(/\D/g, '') : '';
+
+    if (!cleanCpf) {
+        return res.render('clientes/form', {
+            title: 'Novo Cliente',
+            cliente: { nome, telefone, cpf, observacoes },
+            error: 'O CPF é obrigatório.'
+        });
+    }
+
+    db.get(
+        `SELECT * FROM clientes WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = ?`,
+        [cleanCpf],
+        (err, row) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("Erro ao salvar cliente");
+                return res.status(500).send("Erro ao verificar CPF");
             }
-            res.redirect('/clientes');
+            if (row) {
+                return res.render('clientes/form', {
+                    title: 'Novo Cliente',
+                    cliente: { nome, telefone, cpf, observacoes },
+                    error: 'Este CPF já está cadastrado para outro cliente.'
+                });
+            }
+
+            db.run(
+                `INSERT INTO clientes (nome, telefone, cpf, observacoes) VALUES (?, ?, ?, ?)`,
+                [nome, telefone, cpf, observacoes],
+                function (err) {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).send("Erro ao salvar cliente");
+                    }
+                    res.redirect('/clientes');
+                }
+            );
         }
     );
 };
@@ -38,22 +66,50 @@ exports.editar = (req, res) => {
         if (err || !row) {
             return res.status(404).send("Cliente não encontrado");
         }
-        res.render('clientes/form', { title: 'Editar Cliente', cliente: row });
+        res.render('clientes/form', { title: 'Editar Cliente', cliente: row, error: null });
     });
 };
 
 exports.atualizar = (req, res) => {
     const id = req.params.id;
     const { nome, telefone, cpf, observacoes } = req.body;
-    db.run(
-        `UPDATE clientes SET nome = ?, telefone = ?, cpf = ?, observacoes = ? WHERE id = ?`,
-        [nome, telefone, cpf, observacoes, id],
-        function (err) {
+    const cleanCpf = cpf ? cpf.replace(/\D/g, '') : '';
+
+    if (!cleanCpf) {
+        return res.render('clientes/form', {
+            title: 'Editar Cliente',
+            cliente: { id, nome, telefone, cpf, observacoes },
+            error: 'O CPF é obrigatório.'
+        });
+    }
+
+    db.get(
+        `SELECT * FROM clientes WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = ? AND id != ?`,
+        [cleanCpf, id],
+        (err, row) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("Erro ao atualizar cliente");
+                return res.status(500).send("Erro ao verificar CPF");
             }
-            res.redirect('/clientes');
+            if (row) {
+                return res.render('clientes/form', {
+                    title: 'Editar Cliente',
+                    cliente: { id, nome, telefone, cpf, observacoes },
+                    error: 'Este CPF já está cadastrado para outro cliente.'
+                });
+            }
+
+            db.run(
+                `UPDATE clientes SET nome = ?, telefone = ?, cpf = ?, observacoes = ? WHERE id = ?`,
+                [nome, telefone, cpf, observacoes, id],
+                function (err) {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).send("Erro ao atualizar cliente");
+                    }
+                    res.redirect('/clientes');
+                }
+            );
         }
     );
 };

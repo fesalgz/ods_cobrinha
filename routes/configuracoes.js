@@ -45,8 +45,71 @@ const upload = multer({
     }
 });
 
+const verificarAutenticacaoConfig = (req, res, next) => {
+    if (req.session && req.session.configAuthenticated) {
+        return next();
+    }
+    res.render('configuracoes-login', {
+        title: 'Acesso Restrito',
+        error: req.query.error || null
+    });
+};
+
+router.post('/login', (req, res) => {
+    const { senha } = req.body;
+    db.get('SELECT senha_painel FROM configuracoes WHERE id = 1', [], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Erro no servidor.");
+        }
+        const senhaCorreta = row ? row.senha_painel : 'admin';
+        if (senha === senhaCorreta) {
+            req.session.configAuthenticated = true;
+            return res.redirect('/configuracoes');
+        } else {
+            return res.render('configuracoes-login', {
+                title: 'Acesso Restrito',
+                error: 'Senha incorreta. Tente novamente.'
+            });
+        }
+    });
+});
+
+router.post('/alterar-senha', verificarAutenticacaoConfig, (req, res) => {
+    const { senha_atual, nova_senha, confirmar_senha } = req.body;
+
+    db.get('SELECT senha_painel FROM configuracoes WHERE id = 1', [], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Erro ao buscar senha atual.");
+        }
+
+        const senhaCorreta = row ? row.senha_painel : 'admin';
+
+        if (senha_atual !== senhaCorreta) {
+            return res.redirect('/configuracoes?error_senha=A senha atual está incorreta.');
+        }
+
+        if (nova_senha !== confirmar_senha) {
+            return res.redirect('/configuracoes?error_senha=A nova senha e a confirmação não coincidem.');
+        }
+
+        if (nova_senha.length < 3) {
+            return res.redirect('/configuracoes?error_senha=A nova senha deve ter no mínimo 3 caracteres.');
+        }
+
+        db.run('UPDATE configuracoes SET senha_painel = ? WHERE id = 1', [nova_senha], (updateErr) => {
+            if (updateErr) {
+                console.error(updateErr);
+                return res.status(500).send("Erro ao alterar senha.");
+            }
+            res.redirect('/configuracoes?success_senha=Senha alterada com sucesso!');
+        });
+    });
+});
+
 // Página de Configurações
-router.get('/', (req, res) => {
+router.get('/', verificarAutenticacaoConfig, (req, res) => {
     db.get('SELECT * FROM configuracoes WHERE id = 1', [], (err, config) => {
         if (err) {
             console.error(err);
@@ -71,13 +134,15 @@ router.get('/', (req, res) => {
         res.render('configuracoes', {
             title: 'Configurações do Sistema',
             config: config || {},
-            dbSize: dbSize
+            dbSize: dbSize,
+            errorSenha: req.query.error_senha || null,
+            successSenha: req.query.success_senha || null
         });
     });
 });
 
 // Salvar Configurações
-router.post('/salvar', upload.single('logo'), (req, res) => {
+router.post('/salvar', verificarAutenticacaoConfig, upload.single('logo'), (req, res) => {
     let { nome_sistema, empresa_nome, empresa_endereco, empresa_telefone } = req.body;
     let logo_path = null;
 
@@ -109,7 +174,7 @@ router.post('/salvar', upload.single('logo'), (req, res) => {
 });
 
 // Download do Banco de Dados
-router.get('/backup', (req, res) => {
+router.get('/backup', verificarAutenticacaoConfig, (req, res) => {
     res.download(dbFilePath, 'backup_sistema.db', (err) => {
         if (err) {
             console.error("Erro ao baixar backup:", err);
@@ -119,7 +184,7 @@ router.get('/backup', (req, res) => {
 });
 
 // Limpar Ordens de Serviço
-router.post('/limpar-os', (req, res) => {
+router.post('/limpar-os', verificarAutenticacaoConfig, (req, res) => {
     db.run("DELETE FROM ordens", (err) => {
         if (err) {
             console.error("Erro ao deletar OS:", err);
@@ -133,7 +198,7 @@ router.post('/limpar-os', (req, res) => {
 });
 
 // Limpar TODOS os Clientes
-router.post('/limpar-clientes', (req, res) => {
+router.post('/limpar-clientes', verificarAutenticacaoConfig, (req, res) => {
     db.run("DELETE FROM clientes", (err) => {
         if (err) {
             console.error("Erro ao deletar Clientes:", err);
@@ -149,7 +214,7 @@ router.post('/limpar-clientes', (req, res) => {
 // Restaurar Banco de Dados (Upload)
 const uploadDb = multer({ dest: uploadsPath }); // Salva temp na pasta de uploads
 
-router.post('/restaurar', uploadDb.single('banco'), (req, res) => {
+router.post('/restaurar', verificarAutenticacaoConfig, uploadDb.single('banco'), (req, res) => {
     if (!req.file) {
         return res.status(400).send("Nenhum arquivo enviado ou erro no upload.");
     }

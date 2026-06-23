@@ -1,6 +1,12 @@
 <%- include('../partials/header') %>
 
 <style>
+    /* Correção do tamanho dos inputs numéricos */
+    input.form-control, select.form-control {
+        height: 42px !important;
+        box-sizing: border-box !important;
+    }
+
     /* Layout Geral */
     .etiquetas-layout {
         display: flex;
@@ -191,12 +197,12 @@
     /* Sizing specific to "Grande" layout */
     .layout-grande .etiqueta-wrapper {
         border-width: 2px !important;
-        padding: 12px 16px;
-        margin: 1.5mm;
+        padding: 6px 10px;
+        margin: 0.8mm;
     }
     
     .layout-grande .empty-slot {
-        margin: 1.5mm;
+        margin: 0.8mm;
     }
     
     .layout-grande .etiqueta-titulo {
@@ -255,12 +261,12 @@
     /* Sizing specific to "Pequena" layout */
     .layout-pequena .etiqueta-wrapper {
         border-width: 1.5px !important;
-        padding: 6px 8px;
-        margin: 1mm;
+        padding: 4px 6px;
+        margin: 0.5mm;
     }
     
     .layout-pequena .empty-slot {
-        margin: 1mm;
+        margin: 0.5mm;
     }
     
     .layout-pequena .etiqueta-titulo {
@@ -441,35 +447,40 @@
                 
                 <form id="formEtiqueta" onsubmit="handleSubmit(event)">
                     <div class="form-group mb-3">
+                        <label for="titulo">Texto do Destaque (Título)</label>
+                        <input type="text" id="titulo" class="form-control" placeholder="Ex: PROMOÇÃO !!!" value="PROMOÇÃO !!!" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                    </div>
+                    
+                    <div class="form-group mb-3">
                         <label for="descricao">Descrição do Produto</label>
-                        <input type="text" id="descricao" class="form-control" placeholder="Ex: IPAD MINI A17 PRO 128GB" required>
+                        <input type="text" id="descricao" class="form-control" placeholder="Ex: IPAD MINI A17 PRO 128GB" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                     </div>
                     
                     <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                         <div class="form-group mb-0" style="flex: 1; padding: 0;">
                             <label for="preco_cheio">Preço a Prazo (Cheio) - R$</label>
-                            <input type="number" id="preco_cheio" class="form-control" step="0.01" placeholder="Ex: 4199.99" required>
+                            <input type="number" id="preco_cheio" class="form-control" step="0.01" placeholder="Ex: 4199.99" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                         </div>
                         <div class="form-group mb-0" style="flex: 1; padding: 0;">
                             <label for="valor_avista">Valor à Vista - R$</label>
-                            <input type="number" id="valor_avista" class="form-control" step="0.01" placeholder="Calculado" required>
+                            <input type="number" id="valor_avista" class="form-control" step="0.01" placeholder="Calculado" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                         </div>
                     </div>
 
                     <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                         <div class="form-group mb-0" style="flex: 1; padding: 0;">
                             <label for="desconto">Desconto à Vista (%)</label>
-                            <input type="number" id="desconto" class="form-control" step="0.1" value="10" required>
+                            <input type="number" id="desconto" class="form-control" step="0.1" value="10" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                         </div>
                         <div class="form-group mb-0" style="flex: 1; padding: 0;">
                             <label for="parcelas">Nº Parcelas</label>
-                            <input type="number" id="parcelas" class="form-control" value="12" required>
+                            <input type="number" id="parcelas" class="form-control" value="12" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                         </div>
                     </div>
 
                     <div class="form-group mb-4">
                         <label for="quantidade">Quantidade de Etiquetas</label>
-                        <input type="number" id="quantidade" class="form-control" min="1" value="1" required>
+                        <input type="number" id="quantidade" class="form-control" min="1" value="1" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                     </div>
 
                     <div style="display: flex; gap: 10px;">
@@ -525,7 +536,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="tamanho_etiqueta">Tamanho das Etiquetas</label>
-                    <select id="tamanho_etiqueta" class="form-control" onchange="handleSizeChange()">
+                    <select id="tamanho_etiqueta" class="form-control" onchange="handleSizeChange()" style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                         <option value="grande">Grande (Grade 2x5 - 10 por folha)</option>
                         <option value="pequena">Pequena (Grade 3x7 - 21 por folha)</option>
                     </select>
@@ -533,7 +544,7 @@
 
                 <div class="form-group mb-4">
                     <label for="posicao_inicial">Posição de Início (Primeira página)</label>
-                    <input type="number" id="posicao_inicial" class="form-control" min="1" max="10" value="1" onchange="renderPreview()">
+                    <input type="number" id="posicao_inicial" class="form-control" min="1" max="10" value="1" onchange="renderPreview()" style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
                     <small style="color: var(--text-muted); font-size: 11px; margin-top: 5px; display: block;">
                         Permite pular adesivos já usados para reaproveitar folhas.
                     </small>
@@ -621,6 +632,7 @@
             items = [
                 {
                     id: 'default',
+                    titulo: 'PROMOÇÃO !!!',
                     descricao: 'IPAD MINI A17 PRO 128GB',
                     preco_cheio: 4199.99,
                     desconto: 10,
@@ -658,6 +670,7 @@
     function handleSubmit(e) {
         e.preventDefault();
         
+        const tituloInput = document.getElementById('titulo');
         const descInput = document.getElementById('descricao');
         const precoInput = document.getElementById('preco_cheio');
         const valorAvistaInput = document.getElementById('valor_avista');
@@ -665,6 +678,7 @@
         const parcelasInput = document.getElementById('parcelas');
         const qtyInput = document.getElementById('quantidade');
         
+        const titulo = tituloInput.value.trim() || 'PROMOÇÃO !!!';
         const desc = descInput.value.trim();
         const precoCheio = parseFloat(precoInput.value) || 0;
         const desconto = parseFloat(descPercentInput.value) || 0;
@@ -680,6 +694,7 @@
                 if (item.id === editingId) {
                     return {
                         ...item,
+                        titulo: titulo,
                         descricao: desc,
                         preco_cheio: precoCheio,
                         desconto: desconto,
@@ -698,6 +713,7 @@
             // Add item
             const newItem = {
                 id: Date.now().toString(),
+                titulo: titulo,
                 descricao: desc,
                 preco_cheio: precoCheio,
                 desconto: desconto,
@@ -724,6 +740,7 @@
         if (!item) return;
         
         editingId = id;
+        document.getElementById('titulo').value = item.titulo || 'PROMOÇÃO !!!';
         document.getElementById('descricao').value = item.descricao;
         document.getElementById('preco_cheio').value = item.preco_cheio;
         document.getElementById('desconto').value = item.desconto;
@@ -746,6 +763,7 @@
         document.getElementById('btn-cancel-edit').style.display = 'none';
         document.getElementById('form-title').innerText = 'Adicionar Produto';
         
+        document.getElementById('titulo').value = 'PROMOÇÃO !!!';
         document.getElementById('descricao').value = '';
         document.getElementById('preco_cheio').value = '';
         document.getElementById('valor_avista').value = '';
@@ -826,7 +844,10 @@
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="font-weight: 600; font-family:'Rajdhani', sans-serif; font-size: 14px; color: var(--text-main);">${escapeHtml(item.descricao.toUpperCase())}</td>
+                <td style="font-weight: 600; font-family:'Rajdhani', sans-serif; font-size: 14px; color: var(--text-main);">
+                    <div style="font-size: 10px; color: var(--primary); font-weight: 700; text-transform: uppercase;">${escapeHtml(item.titulo || 'PROMOÇÃO !!!')}</div>
+                    ${escapeHtml(item.descricao.toUpperCase())}
+                </td>
                 <td>
                     <div style="font-size:11px; font-weight:700; color:var(--primary)">R$ ${formatMoney(valorAvista)} <span style="font-size:9px; color:var(--text-muted)">À VISTA</span></div>
                     <div style="font-size:10px; color:var(--text-muted)">ou ${item.parcelas}x de R$ ${formatMoney(valorParcela)}</div>
@@ -851,6 +872,33 @@
             `;
             tbody.appendChild(tr);
         });
+    }
+
+    function getTitleStyle(titleText, size) {
+        const len = titleText.length;
+        let fontSize = '';
+        if (size === 'grande') {
+            if (len > 24) {
+                fontSize = '10.5pt';
+            } else if (len > 18) {
+                fontSize = '12.5pt';
+            } else if (len > 14) {
+                fontSize = '14.5pt';
+            } else {
+                fontSize = '16pt';
+            }
+        } else { // pequena
+            if (len > 24) {
+                fontSize = '7.5pt';
+            } else if (len > 18) {
+                fontSize = '8.5pt';
+            } else if (len > 14) {
+                fontSize = '9.5pt';
+            } else {
+                fontSize = '11pt';
+            }
+        }
+        return `font-size: ${fontSize} !important;`;
     }
 
     // Build the grid and pages for A4 preview
@@ -906,8 +954,9 @@
                     
                     const labelDiv = document.createElement('div');
                     labelDiv.className = 'etiqueta-wrapper';
+                    const titleText = (item.titulo || 'PROMOÇÃO !!!').toUpperCase();
                     labelDiv.innerHTML = `
-                        <h2 class="etiqueta-titulo">PROMOÇÃO !!!</h2>
+                        <h2 class="etiqueta-titulo" style="${getTitleStyle(titleText, size)}">${escapeHtml(titleText)}</h2>
                         <p class="etiqueta-desc">${escapeHtml(item.descricao.toUpperCase())}</p>
                         <div class="etiqueta-avista">
                             R$ ${formatMoney(valorAvista)} <span class="suffix">À VISTA</span>

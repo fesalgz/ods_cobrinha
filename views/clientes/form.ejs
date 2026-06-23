@@ -3,12 +3,18 @@
     <div class="card">
         <div class="card-header">
             <h2>
-                <%= cliente ? 'Editar Cliente' : 'Cadastrar Novo Cliente' %>
+                <%= (cliente && cliente.id) ? 'Editar Cliente' : 'Cadastrar Novo Cliente' %>
             </h2>
             <a href="/clientes" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Voltar</a>
         </div>
 
-        <form action="<%= cliente ? '/clientes/atualizar/' + cliente.id : '/clientes/salvar' %>" method="POST"
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <form action="<%= (cliente && cliente.id) ? '/clientes/atualizar/' + cliente.id : '/clientes/salvar' %>" method="POST"
             class="form-grid">
             <div class="form-group col-12">
                 <label for="nome">Nome Completo *</label>
