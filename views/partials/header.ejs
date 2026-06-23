@@ -61,14 +61,97 @@
                     <%= title %>
                 </h1>
                 <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
+                    <div id="updater-container" style="display: flex; align-items: center; gap: 10px;">
+                        <span id="updater-status-text" style="font-size: 13px; color: var(--text-color, #6c757d); display: none; font-weight: 500;"></span>
+                        <button id="btn-check-update" onclick="checkUpdate()" title="Buscar Atualização" style="padding: 0; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: var(--text-color, #6c757d); cursor: pointer; transition: all 0.2s;">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="btn-download-update" onclick="downloadUpdate()" title="Baixar Atualização" style="display: none; padding: 0; font-size: 16px; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: #28a745; color: white; cursor: pointer; box-shadow: 0 2px 4px rgba(40,167,69,0.2); transition: all 0.2s;">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
                     <a href="#" onclick="toggleTema(); return false;" title="Alternar Modo Escuro"
-                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center;">
+                        style="color: var(--text-color, #6c757d); text-decoration: none; font-size: 18px; display: flex; align-items: center;">
                         <i class="fas fa-moon"></i>
                     </a>
                 </div>
             </header>
             <div class="content-wrapper">
                 <script>
+                    function checkUpdateStatus() {
+                        fetch('/api/updater/status')
+                            .then(res => res.json())
+                            .then(data => {
+                                const statusText = document.getElementById('updater-status-text');
+                                const btnCheck = document.getElementById('btn-check-update');
+                                const btnDownload = document.getElementById('btn-download-update');
+                                const iconCheck = btnCheck ? btnCheck.querySelector('i') : null;
+
+                                if (!statusText || !btnCheck || !btnDownload) return;
+
+                                if (data.status === 'none') {
+                                    statusText.style.display = 'none';
+                                    btnCheck.style.display = 'flex';
+                                    btnCheck.disabled = false;
+                                    if (iconCheck) iconCheck.classList.remove('fa-spin');
+                                    btnDownload.style.display = 'none';
+                                } else if (data.status === 'checking') {
+                                    statusText.style.display = 'none';
+                                    btnCheck.style.display = 'flex';
+                                    btnCheck.disabled = true;
+                                    if (iconCheck) iconCheck.classList.add('fa-spin');
+                                    btnDownload.style.display = 'none';
+                                } else if (data.status === 'available') {
+                                    statusText.style.display = 'none';
+                                    btnCheck.style.display = 'none';
+                                    btnDownload.style.display = 'flex';
+                                } else if (data.status === 'downloading') {
+                                    statusText.textContent = 'Baixando...';
+                                    statusText.style.display = 'inline';
+                                    btnCheck.style.display = 'none';
+                                    btnDownload.style.display = 'none';
+                                } else if (data.status === 'downloaded') {
+                                    statusText.textContent = 'Atualização Pronta!';
+                                    statusText.style.color = '#28a745';
+                                    statusText.style.display = 'inline';
+                                    btnCheck.style.display = 'none';
+                                    btnDownload.style.display = 'none';
+                                } else if (data.status === 'error') {
+                                    statusText.textContent = 'Erro ao buscar update';
+                                    statusText.style.color = '#dc3545';
+                                    statusText.style.display = 'inline';
+                                    btnCheck.style.display = 'flex';
+                                    btnCheck.disabled = false;
+                                    if (iconCheck) iconCheck.classList.remove('fa-spin');
+                                    btnDownload.style.display = 'none';
+                                }
+                            })
+                            .catch(err => console.error('Erro ao verificar status do updater', err));
+                    }
+
+                    function checkUpdate() {
+                        const btnCheck = document.getElementById('btn-check-update');
+                        const iconCheck = btnCheck.querySelector('i');
+                        btnCheck.disabled = true;
+                        iconCheck.classList.add('fa-spin');
+
+                        fetch('/api/updater/check', { method: 'POST' })
+                            .then(() => setTimeout(checkUpdateStatus, 1000));
+                    }
+
+                    function downloadUpdate() {
+                        const btnDownload = document.getElementById('btn-download-update');
+                        btnDownload.disabled = true;
+                        btnDownload.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        fetch('/api/updater/download', { method: 'POST' })
+                            .then(() => setTimeout(checkUpdateStatus, 1000));
+                    }
+
+                    // Verifica o status periodicamente e no carregamento
+                    setInterval(checkUpdateStatus, 3000);
+                    setTimeout(checkUpdateStatus, 500);
+
                     function toggleTema() {
                         fetch('/toggle-tema', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
                             .then(response => response.json())
