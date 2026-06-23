@@ -3,12 +3,18 @@
     <div class="card">
         <div class="card-header">
             <h2>
-                <%= cliente ? 'Editar Cliente' : 'Cadastrar Novo Cliente' %>
+                <%= (cliente && cliente.id) ? 'Editar Cliente' : 'Cadastrar Novo Cliente' %>
             </h2>
             <a href="/clientes" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Voltar</a>
         </div>
 
-        <form action="<%= cliente ? '/clientes/atualizar/' + cliente.id : '/clientes/salvar' %>" method="POST"
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <form action="<%= (cliente && cliente.id) ? '/clientes/atualizar/' + cliente.id : '/clientes/salvar' %>" method="POST"
             class="form-grid">
             <div class="form-group col-12">
                 <label for="nome">Nome Completo *</label>
@@ -19,7 +25,7 @@
             <div class="form-group col-6">
                 <label for="telefone">Telefone *</label>
                 <input type="text" id="telefone" name="telefone" class="form-control"
-                    value="<%= cliente ? cliente.telefone : '' %>" required minlength="14" maxlength="15">
+                    value="<%= cliente ? cliente.telefone : '' %>" required minlength="15" maxlength="15">
             </div>
 
             <div class="form-group col-6">
@@ -45,6 +51,48 @@
         document.addEventListener('DOMContentLoaded', () => {
             const cpfInput = document.getElementById('cpf');
             const telInput = document.getElementById('telefone');
+            const form = document.querySelector('form');
+
+            function validarCPF(cpf) {
+                cpf = cpf.replace(/\D/g, '');
+                if (cpf.length !== 11) return false;
+                // Rejeita CPFs com todos os dígitos iguais
+                if (/^(\d)\1{10}$/.test(cpf)) return false;
+                // Valida primeiro dígito verificador
+                let soma = 0;
+                for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+                let resto = (soma * 10) % 11;
+                if (resto === 10) resto = 0;
+                if (resto !== parseInt(cpf.charAt(9))) return false;
+                // Valida segundo dígito verificador
+                soma = 0;
+                for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+                resto = (soma * 10) % 11;
+                if (resto === 10) resto = 0;
+                if (resto !== parseInt(cpf.charAt(10))) return false;
+                return true;
+            }
+
+            function validarCampos() {
+                if (cpfInput) {
+                    const cpfDigits = cpfInput.value.replace(/\D/g, '');
+                    if (cpfDigits.length !== 11) {
+                        cpfInput.setCustomValidity('O CPF deve conter exatamente 11 números.');
+                    } else if (!validarCPF(cpfDigits)) {
+                        cpfInput.setCustomValidity('CPF inválido. Verifique os números digitados.');
+                    } else {
+                        cpfInput.setCustomValidity('');
+                    }
+                }
+                if (telInput) {
+                    const telDigits = telInput.value.replace(/\D/g, '');
+                    if (telDigits.length !== 11) {
+                        telInput.setCustomValidity('O telefone deve conter exatamente 11 números (DDD + número).');
+                    } else {
+                        telInput.setCustomValidity('');
+                    }
+                }
+            }
 
             if (cpfInput) {
                 cpfInput.addEventListener('input', function (e) {
@@ -54,6 +102,7 @@
                     val = val.replace(/(\d{3})(\d)/, '$1.$2');
                     val = val.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
                     e.target.value = val;
+                    validarCampos();
                 });
             }
 
@@ -71,6 +120,17 @@
                         val = val.replace(/^(\d+)/, '($1');
                     }
                     e.target.value = val;
+                    validarCampos();
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    validarCampos();
+                    if (!form.checkValidity()) {
+                        e.preventDefault();
+                        form.reportValidity();
+                    }
                 });
             }
         });

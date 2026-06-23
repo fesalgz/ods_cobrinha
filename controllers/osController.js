@@ -1,5 +1,13 @@
 const db = require('../database/db');
 
+function buscarFuncionarios(req, callback) {
+    const isAdmin = req.session.user && req.session.user.role === 'admin';
+    const query = isAdmin
+        ? `SELECT nome_os FROM usuarios ORDER BY nome_os ASC`
+        : `SELECT nome_os FROM usuarios WHERE role != 'admin' ORDER BY nome_os ASC`;
+    db.all(query, [], callback);
+}
+
 exports.listar = (req, res) => {
     const statusFilter = req.query.status || '';
     const search = req.query.busca || '';
@@ -41,12 +49,7 @@ exports.formulario = (req, res) => {
     db.all(`SELECT id, nome FROM clientes ORDER BY nome ASC`, [], (err, clientes) => {
         if (err) return res.status(500).send("Erro ao buscar clientes");
 
-        const isAdmin = req.session.user && req.session.user.role === 'admin';
-        const funcQuery = isAdmin
-            ? `SELECT nome_os FROM usuarios ORDER BY nome_os ASC`
-            : `SELECT nome_os FROM usuarios WHERE role != 'admin' ORDER BY nome_os ASC`;
-
-        db.all(funcQuery, [], (err, funcionarios) => {
+        buscarFuncionarios(req, (err, funcionarios) => {
             if (err) return res.status(500).send("Erro ao buscar funcionários");
 
             const numero_os = Math.floor(100000 + Math.random() * 900000).toString();
@@ -105,12 +108,7 @@ exports.editar = (req, res) => {
         db.all(`SELECT id, nome FROM clientes ORDER BY nome ASC`, [], (err, clientes) => {
             if (err) return res.status(500).send("Erro ao buscar clientes");
 
-            const isAdmin = req.session.user && req.session.user.role === 'admin';
-            const funcQuery = isAdmin
-                ? `SELECT nome_os FROM usuarios ORDER BY nome_os ASC`
-                : `SELECT nome_os FROM usuarios WHERE role != 'admin' ORDER BY nome_os ASC`;
-
-            db.all(funcQuery, [], (err, funcionarios) => {
+            buscarFuncionarios(req, (err, funcionarios) => {
                 if (err) return res.status(500).send("Erro ao buscar funcionários");
 
                 res.render('os/form', {

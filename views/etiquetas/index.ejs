@@ -1,0 +1,1013 @@
+<%- include('../partials/header') %>
+
+<style>
+    /* Correção do tamanho dos inputs numéricos */
+    input.form-control, select.form-control {
+        height: 42px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Layout Geral */
+    .etiquetas-layout {
+        display: flex;
+        gap: 25px;
+        margin-top: 20px;
+        align-items: flex-start;
+    }
+    
+    .sidebar-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 480px;
+        min-width: 320px;
+    }
+    
+    .preview-panel {
+        flex: 1.5;
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: var(--shadow-md);
+        min-width: 400px;
+        backdrop-filter: var(--glass-blur);
+    }
+    
+    /* Fila de Impressão Table */
+    .queue-table-container {
+        max-height: 280px;
+        overflow-y: auto;
+        margin-top: 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .queue-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .queue-table th {
+        background-color: rgba(0, 0, 0, 0.03);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    
+    body.dark-theme .queue-table th {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+    
+    .queue-table td {
+        padding: 10px 12px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+    }
+    
+    .qty-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.03);
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    
+    body.dark-theme .qty-controls {
+        background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .qty-btn {
+        background: none;
+        border: none;
+        color: var(--text-main);
+        font-weight: bold;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 3px;
+        transition: var(--transition);
+        font-size: 14px;
+    }
+    
+    .qty-btn:hover {
+        background: var(--primary);
+        color: #000;
+    }
+    
+    .qty-val {
+        font-weight: 600;
+        min-width: 18px;
+        text-align: center;
+    }
+
+    /* Print Preview Wrapper */
+    #preview-wrapper {
+        width: 100%;
+        max-width: 794px;
+        overflow: hidden;
+        position: relative;
+        background: rgba(0,0,0,0.02);
+        border-radius: 8px;
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+    }
+    
+    body.dark-theme #preview-wrapper {
+        background: rgba(255, 255, 255, 0.01);
+    }
+
+    #preview-scale-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transform-origin: top center;
+        width: 794px;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* A4 Sheet Dimensions */
+    .print-page {
+        width: 210mm;
+        height: 297mm;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        box-sizing: border-box;
+        page-break-after: always;
+        position: relative;
+    }
+
+    /* Grid Layouts for A4 sheet */
+    .print-page.layout-grande {
+        padding: 11mm 6mm;
+        display: grid;
+        grid-template-columns: repeat(2, 99mm);
+        grid-template-rows: repeat(5, 55mm);
+        gap: 0mm;
+    }
+
+    .print-page.layout-pequena {
+        padding: 15.15mm 9.75mm;
+        display: grid;
+        grid-template-columns: repeat(3, 63.5mm);
+        grid-template-rows: repeat(7, 38.1mm);
+        gap: 0mm;
+    }
+
+    /* Label cell contents */
+    .etiqueta-wrapper {
+        background: #ffffff !important;
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 8px;
+        box-sizing: border-box;
+        width: auto;
+        height: auto;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Sizing specific to "Grande" layout */
+    .layout-grande .etiqueta-wrapper {
+        border-width: 2px !important;
+        padding: 6px 10px;
+        margin: 0.8mm;
+    }
+    
+    .layout-grande .empty-slot {
+        margin: 0.8mm;
+    }
+    
+    .layout-grande .etiqueta-titulo {
+        font-size: 16pt;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin: 0;
+        color: #000000 !important;
+        font-family: 'Arial Black', Impact, sans-serif;
+    }
+    
+    .layout-grande .etiqueta-desc {
+        font-size: 12pt;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.25;
+        color: #000000 !important;
+        max-height: 2.5em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .layout-grande .etiqueta-avista {
+        font-size: 24pt;
+        font-weight: 900;
+        color: #000000 !important;
+        margin: 0;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 4px;
+    }
+    
+    .layout-grande .etiqueta-avista span.suffix {
+        font-size: 12pt;
+        font-weight: 800;
+    }
+    
+    .layout-grande .etiqueta-prazo {
+        font-size: 13pt;
+        font-weight: 800;
+        margin: 0;
+        color: #000000 !important;
+    }
+    
+    .layout-grande .etiqueta-total-prazo {
+        font-size: 11pt;
+        font-weight: 800;
+        margin: 0;
+        color: #000000 !important;
+    }
+
+    /* Sizing specific to "Pequena" layout */
+    .layout-pequena .etiqueta-wrapper {
+        border-width: 1.5px !important;
+        padding: 4px 6px;
+        margin: 0.5mm;
+    }
+    
+    .layout-pequena .empty-slot {
+        margin: 0.5mm;
+    }
+    
+    .layout-pequena .etiqueta-titulo {
+        font-size: 11pt;
+        font-weight: 900;
+        letter-spacing: 1px;
+        margin: 0;
+        color: #000000 !important;
+        font-family: 'Arial Black', Impact, sans-serif;
+    }
+    
+    .layout-pequena .etiqueta-desc {
+        font-size: 8.5pt;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.15;
+        color: #000000 !important;
+        max-height: 2.3em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .layout-pequena .etiqueta-avista {
+        font-size: 15pt;
+        font-weight: 900;
+        color: #000000 !important;
+        margin: 0;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 2px;
+    }
+    
+    .layout-pequena .etiqueta-avista span.suffix {
+        font-size: 8pt;
+        font-weight: 800;
+    }
+    
+    .layout-pequena .etiqueta-prazo {
+        font-size: 9pt;
+        font-weight: 800;
+        margin: 0;
+        color: #000000 !important;
+    }
+    
+    .layout-pequena .etiqueta-total-prazo {
+        font-size: 8pt;
+        font-weight: 800;
+        margin: 0;
+        color: #000000 !important;
+    }
+
+    /* Empty slots styling on screen preview */
+    .empty-slot {
+        box-sizing: border-box;
+        width: auto;
+        height: auto;
+        background: transparent;
+    }
+    
+    @media screen {
+        .empty-slot {
+            border: 1px dashed rgba(0, 0, 0, 0.12);
+            background: rgba(0, 0, 0, 0.01);
+            position: relative;
+        }
+        .empty-slot::after {
+            content: "Vazio";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8pt;
+            font-weight: 500;
+            color: #ccc;
+            font-family: sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+
+    /* Print styles */
+    @media print {
+        /* Hide all UI components */
+        .print-hide,
+        .sidebar,
+        .topbar,
+        footer {
+            display: none !important;
+        }
+        
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* Flatten grid/flex container layout structure */
+        .app-container,
+        .main-content,
+        .content-wrapper,
+        .container-fluid,
+        .etiquetas-layout,
+        .preview-panel {
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+        }
+        
+        #preview-wrapper {
+            display: block !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 210mm !important;
+            height: auto !important; /* Reset dynamic height */
+        }
+        
+        #preview-scale-container {
+            position: relative !important;
+            transform: none !important; /* Disable scale transform when printing */
+            display: block !important;
+            width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+        
+        .print-page {
+            box-shadow: none !important;
+            margin: 0 !important;
+            page-break-after: always !important;
+            page-break-inside: avoid !important;
+            border: none !important;
+        }
+        
+        .empty-slot {
+            border: none !important;
+            background: transparent !important;
+        }
+        
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between mb-4 print-hide">
+        <h2><i class="fas fa-tags"></i> Gerador de Etiquetas Otimizado</h2>
+    </div>
+
+    <div class="etiquetas-layout">
+        <!-- Sidebar Panel: Form & Print Queue -->
+        <div class="sidebar-panel print-hide">
+            
+            <!-- Product Form -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+                        <i class="fas fa-plus-circle" style="color: var(--primary);"></i>
+                        <span id="form-title">Adicionar Produto</span>
+                    </h3>
+                </div>
+                
+                <form id="formEtiqueta" onsubmit="handleSubmit(event)">
+                    <div class="form-group mb-3">
+                        <label for="titulo">Texto do Destaque (Título)</label>
+                        <input type="text" id="titulo" class="form-control" placeholder="Ex: PROMOÇÃO !!!" value="PROMOÇÃO !!!" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="descricao">Descrição do Produto</label>
+                        <input type="text" id="descricao" class="form-control" placeholder="Ex: IPAD MINI A17 PRO 128GB" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group mb-0" style="flex: 1; padding: 0;">
+                            <label for="preco_cheio">Preço a Prazo (Cheio) - R$</label>
+                            <input type="number" id="preco_cheio" class="form-control" step="0.01" placeholder="Ex: 4199.99" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                        </div>
+                        <div class="form-group mb-0" style="flex: 1; padding: 0;">
+                            <label for="valor_avista">Valor à Vista - R$</label>
+                            <input type="number" id="valor_avista" class="form-control" step="0.01" placeholder="Calculado" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group mb-0" style="flex: 1; padding: 0;">
+                            <label for="desconto">Desconto à Vista (%)</label>
+                            <input type="number" id="desconto" class="form-control" step="0.1" value="10" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                        </div>
+                        <div class="form-group mb-0" style="flex: 1; padding: 0;">
+                            <label for="parcelas">Nº Parcelas</label>
+                            <input type="number" id="parcelas" class="form-control" value="12" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="quantidade">Quantidade de Etiquetas</label>
+                        <input type="number" id="quantidade" class="form-control" min="1" value="1" required style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-plus"></i> <span id="btn-submit-text">Adicionar à Lista</span>
+                        </button>
+                        <button type="button" id="btn-cancel-edit" class="btn btn-secondary" onclick="cancelEdit()" style="display: none;">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Print Queue -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header flex-between" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+                        <i class="fas fa-list" style="color: var(--primary);"></i> Fila de Impressão
+                    </h3>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="clearQueue()" title="Limpar Fila">
+                        <i class="fas fa-trash-alt"></i> Limpar
+                    </button>
+                </div>
+                
+                <div id="queue-empty-msg" style="text-align: center; padding: 25px; color: var(--text-muted); font-size: 13.5px;">
+                    Nenhum produto na fila. Use o formulário acima para adicionar!
+                </div>
+                
+                <div class="queue-table-container">
+                    <table class="queue-table" id="queue-table-el" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Preços</th>
+                                <th>Qtd</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queue-tbody">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sheet Layout Config -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+                        <i class="fas fa-sliders-h" style="color: var(--primary);"></i> Configurações da Folha
+                    </h3>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="tamanho_etiqueta">Tamanho das Etiquetas</label>
+                    <select id="tamanho_etiqueta" class="form-control" onchange="handleSizeChange()" style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                        <option value="grande">Grande (Grade 2x5 - 10 por folha)</option>
+                        <option value="pequena">Pequena (Grade 3x7 - 21 por folha)</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="posicao_inicial">Posição de Início (Primeira página)</label>
+                    <input type="number" id="posicao_inicial" class="form-control" min="1" max="10" value="1" onchange="renderPreview()" style="height: 42px !important; padding: 10px 14px !important; box-sizing: border-box !important;">
+                    <small style="color: var(--text-muted); font-size: 11px; margin-top: 5px; display: block;">
+                        Permite pular adesivos já usados para reaproveitar folhas.
+                    </small>
+                </div>
+
+                <button type="button" class="btn btn-success" onclick="window.print()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-print"></i> IMPRIMIR FOLHAS
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="abrirNoNavegador()" style="width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--primary); color: var(--primary); background: transparent;">
+                    <i class="fas fa-external-link-alt"></i> ABRIR NO NAVEGADOR (Para Prévia)
+                </button>
+            </div>
+            
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <div class="print-hide" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px;">
+                <h4 style="margin: 0; font-size: 18px;"><i class="fas fa-eye" style="color: var(--primary);"></i> Prévia da Impressão (A4)</h4>
+                <span class="badge badge-aberto" id="page-count-badge" style="font-size: 12px; padding: 5px 12px;">Páginas: 1</span>
+            </div>
+            
+            <div id="preview-wrapper">
+                <div id="preview-scale-container">
+                    <!-- Print pages will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Format number to currency style BRL
+    function formatMoney(value) {
+        return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calcularValorAvista(precoCheio, desconto) {
+        const valorComDesconto = precoCheio - (precoCheio * (desconto / 100));
+        return Math.floor(valorComDesconto / 100) * 100 + 90;
+    }
+
+    function atualizarCalculoAvista() {
+        const precoCheio = parseFloat(document.getElementById('preco_cheio').value) || 0;
+        const desconto = parseFloat(document.getElementById('desconto').value) || 0;
+        const valorAvistaInput = document.getElementById('valor_avista');
+        
+        const valorAvista = calcularValorAvista(precoCheio, desconto);
+        if (precoCheio > 0) {
+            valorAvistaInput.value = valorAvista.toFixed(2);
+        } else {
+            valorAvistaInput.value = '';
+        }
+    }
+
+    // Escape HTML to prevent XSS in description
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Print list memory state
+    let items = [];
+    let editingId = null;
+
+    // Initialize application state
+    function init() {
+        const stored = localStorage.getItem('etiquetas_items');
+        if (stored) {
+            try {
+                items = JSON.parse(stored);
+            } catch(e) {
+                console.error('Erro ao ler itens do localStorage:', e);
+                items = [];
+            }
+        }
+        
+        // If empty queue, initialize default item
+        if (items.length === 0) {
+            items = [
+                {
+                    id: 'default',
+                    titulo: 'PROMOÇÃO !!!',
+                    descricao: 'IPAD MINI A17 PRO 128GB',
+                    preco_cheio: 4199.99,
+                    desconto: 10,
+                    parcelas: 12,
+                    quantidade: 1
+                }
+            ];
+            localStorage.setItem('etiquetas_items', JSON.stringify(items));
+        }
+
+        renderAll();
+        
+        // Adiciona listeners para atualizar automaticamente o valor à vista ao alterar preço ou desconto
+        document.getElementById('preco_cheio').addEventListener('input', atualizarCalculoAvista);
+        document.getElementById('desconto').addEventListener('input', atualizarCalculoAvista);
+        
+        // Window resize adjusts the scale of the A4 preview sheet
+        window.addEventListener('resize', adjustPreviewScale);
+        
+        // Small timeout to allow css and elements to layout
+        setTimeout(adjustPreviewScale, 150);
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('etiquetas_items', JSON.stringify(items));
+        renderAll();
+    }
+
+    function renderAll() {
+        renderQueueTable();
+        renderPreview();
+    }
+
+    // Add or Edit item submission
+    function handleSubmit(e) {
+        e.preventDefault();
+        
+        const tituloInput = document.getElementById('titulo');
+        const descInput = document.getElementById('descricao');
+        const precoInput = document.getElementById('preco_cheio');
+        const valorAvistaInput = document.getElementById('valor_avista');
+        const descPercentInput = document.getElementById('desconto');
+        const parcelasInput = document.getElementById('parcelas');
+        const qtyInput = document.getElementById('quantidade');
+        
+        const titulo = tituloInput.value.trim() || 'PROMOÇÃO !!!';
+        const desc = descInput.value.trim();
+        const precoCheio = parseFloat(precoInput.value) || 0;
+        const desconto = parseFloat(descPercentInput.value) || 0;
+        const parcelas = parseInt(parcelasInput.value) || 1;
+        const qty = parseInt(qtyInput.value) || 1;
+        const valorAvista = parseFloat(valorAvistaInput.value) || calcularValorAvista(precoCheio, desconto);
+        
+        if (!desc) return;
+        
+        if (editingId) {
+            // Update item
+            items = items.map(item => {
+                if (item.id === editingId) {
+                    return {
+                        ...item,
+                        titulo: titulo,
+                        descricao: desc,
+                        preco_cheio: precoCheio,
+                        desconto: desconto,
+                        parcelas: parcelas,
+                        quantidade: qty,
+                        valor_avista: valorAvista
+                    };
+                }
+                return item;
+            });
+            editingId = null;
+            document.getElementById('btn-submit-text').innerText = 'Adicionar à Lista';
+            document.getElementById('btn-cancel-edit').style.display = 'none';
+            document.getElementById('form-title').innerText = 'Adicionar Produto';
+        } else {
+            // Add item
+            const newItem = {
+                id: Date.now().toString(),
+                titulo: titulo,
+                descricao: desc,
+                preco_cheio: precoCheio,
+                desconto: desconto,
+                parcelas: parcelas,
+                quantidade: qty,
+                valor_avista: valorAvista
+            };
+            items.push(newItem);
+        }
+        
+        saveAndRender();
+        
+        // Reset product form elements (leave discount/installments as preset)
+        descInput.value = '';
+        precoInput.value = '';
+        valorAvistaInput.value = '';
+        qtyInput.value = '1';
+        descInput.focus();
+    }
+
+    // Load item to form for editing
+    function editItem(id) {
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+        
+        editingId = id;
+        document.getElementById('titulo').value = item.titulo || 'PROMOÇÃO !!!';
+        document.getElementById('descricao').value = item.descricao;
+        document.getElementById('preco_cheio').value = item.preco_cheio;
+        document.getElementById('desconto').value = item.desconto;
+        document.getElementById('parcelas').value = item.parcelas;
+        document.getElementById('quantidade').value = item.quantidade;
+        
+        const valorAvistaDefault = calcularValorAvista(item.preco_cheio, item.desconto);
+        document.getElementById('valor_avista').value = (item.valor_avista !== undefined && item.valor_avista !== null) ? item.valor_avista : valorAvistaDefault;
+        
+        document.getElementById('btn-submit-text').innerText = 'Salvar Alterações';
+        document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
+        document.getElementById('form-title').innerText = 'Editar Produto';
+        document.getElementById('descricao').focus();
+    }
+
+    // Cancel edit state
+    function cancelEdit() {
+        editingId = null;
+        document.getElementById('btn-submit-text').innerText = 'Adicionar à Lista';
+        document.getElementById('btn-cancel-edit').style.display = 'none';
+        document.getElementById('form-title').innerText = 'Adicionar Produto';
+        
+        document.getElementById('titulo').value = 'PROMOÇÃO !!!';
+        document.getElementById('descricao').value = '';
+        document.getElementById('preco_cheio').value = '';
+        document.getElementById('valor_avista').value = '';
+        document.getElementById('quantidade').value = '1';
+    }
+
+    // Delete item from queue
+    function deleteItem(id) {
+        items = items.filter(i => i.id !== id);
+        if (editingId === id) {
+            cancelEdit();
+        }
+        saveAndRender();
+    }
+
+    // Increase/decrease quantity directly
+    function changeQty(id, delta) {
+        items = items.map(item => {
+            if (item.id === id) {
+                let newQty = item.quantidade + delta;
+                if (newQty < 1) newQty = 1;
+                return { ...item, quantidade: newQty };
+            }
+            return item;
+        });
+        saveAndRender();
+    }
+
+    // Clear whole queue list
+    function clearQueue() {
+        if (confirm('Deseja realmente limpar toda a lista de etiquetas?')) {
+            items = [];
+            cancelEdit();
+            saveAndRender();
+        }
+    }
+
+    // Change limit for skipped labels depending on template selected
+    function handleSizeChange() {
+        const size = document.getElementById('tamanho_etiqueta').value;
+        const posInput = document.getElementById('posicao_inicial');
+        
+        if (size === 'grande') {
+            posInput.max = 10;
+        } else {
+            posInput.max = 21;
+        }
+        
+        if (parseInt(posInput.value) > parseInt(posInput.max)) {
+            posInput.value = posInput.max;
+        }
+        
+        renderPreview();
+    }
+
+    // Build the queue table UI
+    function renderQueueTable() {
+        const tbody = document.getElementById('queue-tbody');
+        const emptyMsg = document.getElementById('queue-empty-msg');
+        const tableEl = document.getElementById('queue-table-el');
+        
+        tbody.innerHTML = '';
+        
+        if (items.length === 0) {
+            emptyMsg.style.display = 'block';
+            tableEl.style.display = 'none';
+            return;
+        }
+        
+        emptyMsg.style.display = 'none';
+        tableEl.style.display = 'table';
+        
+        items.forEach(item => {
+            const valorComDesconto = item.preco_cheio - (item.preco_cheio * (item.desconto / 100));
+            const valorAvistaDefault = Math.floor(valorComDesconto / 100) * 100 + 90;
+            const valorAvista = (item.valor_avista !== undefined && item.valor_avista !== null) ? item.valor_avista : valorAvistaDefault;
+            const valorParcela = item.preco_cheio / item.parcelas;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: 600; font-family:'Rajdhani', sans-serif; font-size: 14px; color: var(--text-main);">
+                    <div style="font-size: 10px; color: var(--primary); font-weight: 700; text-transform: uppercase;">${escapeHtml(item.titulo || 'PROMOÇÃO !!!')}</div>
+                    ${escapeHtml(item.descricao.toUpperCase())}
+                </td>
+                <td>
+                    <div style="font-size:11px; font-weight:700; color:var(--primary)">R$ ${formatMoney(valorAvista)} <span style="font-size:9px; color:var(--text-muted)">À VISTA</span></div>
+                    <div style="font-size:10px; color:var(--text-muted)">ou ${item.parcelas}x de R$ ${formatMoney(valorParcela)}</div>
+                </td>
+                <td>
+                    <div class="qty-controls">
+                        <button type="button" class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                        <span class="qty-val">${item.quantidade}</span>
+                        <button type="button" class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                    </div>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-secondary btn-sm" style="padding: 5px 8px; margin: 0;" onclick="editItem('${item.id}')" title="Editar">
+                            <i class="fas fa-edit" style="font-size: 11px;"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" style="padding: 5px 8px; margin: 0;" onclick="deleteItem('${item.id}')" title="Excluir">
+                            <i class="fas fa-trash" style="font-size: 11px;"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function getTitleStyle(titleText, size) {
+        const len = titleText.length;
+        let fontSize = '';
+        if (size === 'grande') {
+            if (len > 24) {
+                fontSize = '10.5pt';
+            } else if (len > 18) {
+                fontSize = '12.5pt';
+            } else if (len > 14) {
+                fontSize = '14.5pt';
+            } else {
+                fontSize = '16pt';
+            }
+        } else { // pequena
+            if (len > 24) {
+                fontSize = '7.5pt';
+            } else if (len > 18) {
+                fontSize = '8.5pt';
+            } else if (len > 14) {
+                fontSize = '9.5pt';
+            } else {
+                fontSize = '11pt';
+            }
+        }
+        return `font-size: ${fontSize} !important;`;
+    }
+
+    // Build the grid and pages for A4 preview
+    function renderPreview() {
+        const scaleContainer = document.getElementById('preview-scale-container');
+        const size = document.getElementById('tamanho_etiqueta').value;
+        const startPos = parseInt(document.getElementById('posicao_inicial').value) || 1;
+        
+        scaleContainer.innerHTML = '';
+        
+        const capacity = size === 'grande' ? 10 : 21;
+        const slots = [];
+        
+        // 1. Prepend empty slots to offset printing
+        for (let i = 1; i < startPos; i++) {
+            slots.push({ type: 'empty' });
+        }
+        
+        // 2. Add product label cards
+        items.forEach(item => {
+            for (let q = 0; q < item.quantidade; q++) {
+                slots.push({ type: 'label', data: item });
+            }
+        });
+        
+        // Ensure at least one mockup sheet is shown
+        const totalSlots = slots.length;
+        const pageCount = Math.max(1, Math.ceil(totalSlots / capacity));
+        
+        document.getElementById('page-count-badge').innerText = `Páginas: ${pageCount}`;
+        
+        // Render each page sheet
+        for (let p = 0; p < pageCount; p++) {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = `print-page layout-${size}`;
+            
+            const pageStartIdx = p * capacity;
+            
+            for (let cell = 0; cell < capacity; cell++) {
+                const slotIdx = pageStartIdx + cell;
+                const slot = slots[slotIdx];
+                
+                if (!slot || slot.type === 'empty') {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-slot';
+                    pageDiv.appendChild(emptyDiv);
+                } else {
+                    const item = slot.data;
+                    const valorComDesconto = item.preco_cheio - (item.preco_cheio * (item.desconto / 100));
+                    const valorAvistaDefault = Math.floor(valorComDesconto / 100) * 100 + 90;
+                    const valorAvista = (item.valor_avista !== undefined && item.valor_avista !== null) ? item.valor_avista : valorAvistaDefault;
+                    const valorParcela = item.preco_cheio / item.parcelas;
+                    
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'etiqueta-wrapper';
+                    const titleText = (item.titulo || 'PROMOÇÃO !!!').toUpperCase();
+                    labelDiv.innerHTML = `
+                        <h2 class="etiqueta-titulo" style="${getTitleStyle(titleText, size)}">${escapeHtml(titleText)}</h2>
+                        <p class="etiqueta-desc">${escapeHtml(item.descricao.toUpperCase())}</p>
+                        <div class="etiqueta-avista">
+                            R$ ${formatMoney(valorAvista)} <span class="suffix">À VISTA</span>
+                        </div>
+                        <p class="etiqueta-prazo">OU ${item.parcelas}X DE R$ ${formatMoney(valorParcela)}</p>
+                        <p class="etiqueta-total-prazo">(TOTAL A PRAZO R$ ${formatMoney(item.preco_cheio)})</p>
+                    `;
+                    pageDiv.appendChild(labelDiv);
+                }
+            }
+            
+            scaleContainer.appendChild(pageDiv);
+        }
+        
+        adjustPreviewScale();
+    }
+
+    // Scale A4 sheet dynamically using CSS transform so it fits within screen view
+    function adjustPreviewScale() {
+        const previewPanel = document.querySelector('.preview-panel');
+        const scaleContainer = document.getElementById('preview-scale-container');
+        const previewWrapper = document.getElementById('preview-wrapper');
+        const pagePreviews = document.querySelectorAll('.print-page');
+        
+        if (!previewPanel || !scaleContainer || !previewWrapper || pagePreviews.length === 0) return;
+        
+        const panelWidth = previewPanel.clientWidth - 50; // padding adjustments
+        const targetWidth = 794; // 210mm in pixels (~96 DPI)
+        
+        let scale = panelWidth / targetWidth;
+        if (scale > 1) scale = 1;
+        if (scale < 0.2) scale = 0.2;
+        
+        scaleContainer.style.transform = `translateX(-50%) scale(${scale})`;
+        
+        // A4 page height is 297mm (~1123px at 96 DPI)
+        const pageHeight = 1123;
+        const gap = 20; // 20px gap between pages
+        const totalHeight = (pageHeight * scale * pagePreviews.length) + (gap * (pagePreviews.length - 1) * scale);
+        
+        previewWrapper.style.height = `${totalHeight}px`;
+    }
+
+    // Open in default OS browser (via Express endpoint)
+    function abrirNoNavegador() {
+        fetch('/etiquetas/abrir-no-navegador', { method: 'POST' })
+            .catch(err => console.error('Erro ao abrir navegador:', err));
+    }
+
+    // Load application
+    window.onload = init;
+</script>
+
+<%- include('../partials/footer') %>
