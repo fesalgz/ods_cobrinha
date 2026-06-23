@@ -103,8 +103,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 }
             });
 
-
-
             // Adicionar colunas novas em BDs antigos
             db.run("ALTER TABLE configuracoes ADD COLUMN tema_escuro INTEGER DEFAULT 0", (err) => { });
             db.run("ALTER TABLE configuracoes ADD COLUMN nome_sistema TEXT DEFAULT 'Cobrinha Games'", (err) => { });

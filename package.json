@@ -6,9 +6,8 @@
   "author": "Felipe Salgado",
   "scripts": {
     "start": "node server.js",
-    "electron:start": "electron .",
-    "electron:pack": "electron-builder --dir",
-    "electron:build": "electron-builder"
+    "dev": "electron .",
+    "build": "electron-builder"
   },
   "dependencies": {
     "ejs": "^3.1.9",
@@ -36,7 +35,7 @@
       "repo": "ods_cobrinha"
     },
     "win": {
-      "icon": "icon.png",
+      "icon": "icon.ico",
       "target": "nsis"
     },
     "nsis": {

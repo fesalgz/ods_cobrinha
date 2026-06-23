@@ -2,11 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
 
-// Somente admins e gerentes podem acessar funcionários (verificado no server.js)
-
 // Listar funcionários
 router.get('/', (req, res) => {
-    // Como agora não tem mais restrição de login, todos podem ver todos, mas mantendo a query:
     db.all("SELECT * FROM usuarios", [], (err, rows) => {
         if (err) {
             return res.status(500).send('Erro ao buscar funcionários');

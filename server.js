@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const db = require('./database/db');
 
 // Importar dependencias extras
@@ -67,7 +68,6 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configurar pasta de uploads externa no userData (onde tem permissão de escrita)
-const fs = require('fs');
 let userDataPath;
 if (process.versions && process.versions.electron) {
     const { app: electronApp } = require('electron');

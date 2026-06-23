@@ -1,9 +1,34 @@
 const db = require('../database/db');
 
+function validarCPF(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+    let soma = 0;
+    for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+    let resto = (soma * 10) % 11;
+    if (resto === 10) resto = 0;
+    if (resto !== parseInt(cpf.charAt(9))) return false;
+    soma = 0;
+    for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+    resto = (soma * 10) % 11;
+    if (resto === 10) resto = 0;
+    if (resto !== parseInt(cpf.charAt(10))) return false;
+    return true;
+}
+
+// Validação centralizada de cliente (CPF + telefone)
+function validarCliente(cpf, telefone) {
+    const cleanCpf = cpf ? cpf.replace(/\D/g, '') : '';
+    if (!cleanCpf || cleanCpf.length !== 11) return 'O CPF deve conter exatamente 11 números.';
+    if (!validarCPF(cleanCpf)) return 'CPF inválido. Verifique os números digitados.';
+    const cleanTel = telefone ? telefone.replace(/\D/g, '') : '';
+    if (!cleanTel || cleanTel.length !== 11) return 'O telefone deve conter exatamente 11 números (DDD + número).';
+    return null;
+}
+
 exports.listar = (req, res) => {
     const search = req.query.busca || '';
-    const query = `SELECT * FROM clientes WHERE nome LIKE ? ORDER BY name DESC`;
-
     db.all(`SELECT * FROM clientes WHERE cpf LIKE ? ORDER BY nome ASC`, [`%${search}%`], (err, rows) => {
         if (err) {
             console.error(err);
@@ -19,16 +44,17 @@ exports.formulario = (req, res) => {
 
 exports.salvar = (req, res) => {
     const { nome, telefone, cpf, observacoes } = req.body;
-    const cleanCpf = cpf ? cpf.replace(/\D/g, '') : '';
 
-    if (!cleanCpf) {
+    const erroValidacao = validarCliente(cpf, telefone);
+    if (erroValidacao) {
         return res.render('clientes/form', {
             title: 'Novo Cliente',
             cliente: { nome, telefone, cpf, observacoes },
-            error: 'O CPF é obrigatório.'
+            error: erroValidacao
         });
     }
 
+    const cleanCpf = cpf.replace(/\D/g, '');
     db.get(
         `SELECT * FROM clientes WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = ?`,
         [cleanCpf],
@@ -73,16 +99,17 @@ exports.editar = (req, res) => {
 exports.atualizar = (req, res) => {
     const id = req.params.id;
     const { nome, telefone, cpf, observacoes } = req.body;
-    const cleanCpf = cpf ? cpf.replace(/\D/g, '') : '';
 
-    if (!cleanCpf) {
+    const erroValidacao = validarCliente(cpf, telefone);
+    if (erroValidacao) {
         return res.render('clientes/form', {
             title: 'Editar Cliente',
             cliente: { id, nome, telefone, cpf, observacoes },
-            error: 'O CPF é obrigatório.'
+            error: erroValidacao
         });
     }
 
+    const cleanCpf = cpf.replace(/\D/g, '');
     db.get(
         `SELECT * FROM clientes WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = ? AND id != ?`,
         [cleanCpf, id],

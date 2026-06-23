@@ -1,6 +1,5 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
-const isDev = !app.isPackaged;
 const { autoUpdater } = require('electron-updater');
 
 // Inicia o servidor Node.js/Express em segundo plano
@@ -10,7 +9,6 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-
     width: 1200,
     height: 800,
     icon: path.join(__dirname, 'icon.png'),
@@ -18,13 +16,11 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true
     },
-    autoHideMenuBar: true // Oculta o menu padrão superior
+    autoHideMenuBar: true
   });
 
-  // Maximiza a janela para abrir em tela cheia
   mainWindow.maximize();
 
-  // Aguarda meio segundo para garantir que o servidor Express iniciou na porta 3000
   setTimeout(() => {
     mainWindow.loadURL('http://localhost:3000');
   }, 1000);
@@ -33,30 +29,6 @@ function createWindow() {
     mainWindow = null;
   });
 }
-
-autoUpdater.on("checking-for-update", () => {
-  console.log("Procurando atualização...");
-});
-
-autoUpdater.on("update-available", () => {
-  console.log("Atualização disponível!");
-});
-
-autoUpdater.on("update-not-available", () => {
-  console.log("Sem atualização.");
-});
-
-autoUpdater.on("error", (err) => {
-  console.log("Erro no updater:", err);
-});
-
-autoUpdater.on("download-progress", (progressObj) => {
-  console.log("Baixando:", progressObj.percent);
-});
-
-autoUpdater.on("update-downloaded", () => {
-  console.log("Atualização baixada!");
-});
 
 autoUpdater.on("checking-for-update", () => {
   console.log("Procurando atualização...");
