@@ -25,12 +25,12 @@
             <div class="form-group col-4" id="container_data_entrega" style="display: none;">
                 <label for="data_entrega">Data de Entrega</label>
                 <input type="date" id="data_entrega" name="data_entrega" class="form-control"
-                    value="<%= (os && os.data_entrega) ? os.data_entrega : '' %>">
+                    value="<%= (os && os.data_entrega) ? os.data_entrega : '' %>" <%= (os && os.status === 'Finalizado') ? 'readonly' : '' %>>
             </div>
 
             <div class="form-group col-4">
                 <label for="status">Status</label>
-                <select id="status" name="status" class="form-control" onchange="toggleDataEntrega()" required>
+                <select id="status" name="status" class="form-control" onchange="toggleDataEntrega()" <%= (os && os.status === 'Finalizado') ? 'disabled' : 'required' %>>
                     <option value="Aberto" <%=os && os.status==='Aberto' ? 'selected' : '' %>>Aberto</option>
                     <option value="Finalizado" <%=os && os.status==='Finalizado' ? 'selected' : '' %>>Finalizado
                     </option>
@@ -136,19 +136,30 @@
             <div class="form-group col-6">
                 <label for="observacoes_aparelho">Estado/Observações do Aparelho</label>
                 <textarea id="observacoes_aparelho" name="observacoes_aparelho" class="form-control"
-                    rows="4"><%= os ? os.observacoes_aparelho : '' %></textarea>
+                    rows="4" <%= (os && os.status === 'Finalizado') ? 'readonly' : '' %>><%= os ? os.observacoes_aparelho : '' %></textarea>
             </div>
 
             <div class="form-group col-12">
-                <label for="valor">Valor do Serviço (R$)</label>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                    <label for="valor" style="margin-bottom: 0;">Valor do Serviço (R$)</label>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="is_garantia" name="is_garantia" value="true" 
+                            <%= (os && os.is_garantia === 1) ? 'checked' : '' %> 
+                            <%= (os && os.status === 'Finalizado') ? 'disabled' : '' %> 
+                            onchange="document.getElementById('valor').disabled = this.checked;">
+                        <label for="is_garantia" style="margin-bottom: 0; font-weight: normal; cursor: pointer; color: var(--primary);">Marcar como Garantia</label>
+                    </div>
+                </div>
                 <input type="number" id="valor" name="valor" step="0.01" class="form-control"
-                    value="<%= os ? os.valor : '' %>">
+                    value="<%= os ? os.valor : '' %>" <%= (os && (os.status === 'Finalizado' || os.is_garantia === 1)) ? 'disabled' : '' %>>
             </div>
 
             <div class="form-group col-12 form-actions">
+                <% if (!os || os.status !== 'Finalizado') { %>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Ordem de
                     Serviço</button>
-                <a href="/os" class="btn btn-secondary">Cancelar</a>
+                <% } %>
+                <a href="/os" class="btn btn-secondary"><%= (os && os.status === 'Finalizado') ? 'Voltar' : 'Cancelar' %></a>
             </div>
         </form>
     </div>

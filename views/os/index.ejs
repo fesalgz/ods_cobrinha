@@ -55,15 +55,30 @@
                                         <%= os.status %>
                                     </span>
                                 </td>
-                                <td>R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %>
+                                <td>
+                                    <% if (os.is_garantia === 1) { %>
+                                        <span class="badge" style="background-color: var(--primary); color: white; padding: 5px 8px; border-radius: 4px; font-weight: 600;">Garantia</span>
+                                    <% } else { %>
+                                        R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %>
+                                    <% } %>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="/os/imprimir/<%= os.id %>" target="_blank"
-                                            class="btn btn-sm btn-warning" title="Imprimir"><i
-                                                class="fas fa-print"></i></a>
+                                        <a href="/os/imprimir/entrada/<%= os.id %>" target="_blank"
+                                            class="btn btn-sm btn-warning" title="Imprimir Entrada"><i
+                                                class="fas fa-print"></i> Entrada</a>
+                                        <% if (os.status === 'Finalizado') { %>
+                                        <a href="/os/imprimir/saida/<%= os.id %>" target="_blank"
+                                            class="btn btn-sm btn-success" title="Imprimir Saída"><i
+                                                class="fas fa-print"></i> Saída</a>
+                                        <% } %>
+                                        <% if (os.status !== 'Finalizado') { %>
                                         <a href="/os/editar/<%= os.id %>" class="btn btn-sm btn-info" title="Editar"><i
                                                 class="fas fa-edit"></i></a>
+                                        <% } else { %>
+                                        <a href="/os/editar/<%= os.id %>" class="btn btn-sm btn-secondary" title="Visualizar (Bloqueado)"><i
+                                                class="fas fa-eye"></i></a>
+                                        <% } %>
                                         <% if (typeof user !=='undefined' && (user.role==='admin' ||
                                             user.role==='gerente' )) { %>
                                             <form action="/os/excluir/<%= os.id %>" method="POST"

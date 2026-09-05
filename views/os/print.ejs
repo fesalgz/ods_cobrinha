@@ -360,7 +360,7 @@
         </div>
 
         <div class="os-title">
-            ORDEM DE SERVIÇO Nº <%= os.numero_os %>
+            ORDEM DE SERVIÇO <%= typeof tipo !== 'undefined' ? '(' + tipo.toUpperCase() + ') ' : '' %>Nº <%= os.numero_os %>
         </div>
 
         <div class="section">
@@ -373,18 +373,30 @@
                             <%= dataBR %>
                     </div>
                 </div>
+                <% if (typeof tipo === 'undefined' || tipo === 'Saída') { %>
                 <div class="col">
                     <span class="label">Data de Entrega:</span>
-                    <div class="value" style="margin-top: 10px;">
-                        <strong>____/____/_________</strong>
+                    <div class="value">
+                        <% if(os.data_entrega) { 
+                            const dParts = os.data_entrega.split('-'); 
+                            const dBR = `${dParts[2]}/${dParts[1]}/${dParts[0]}`; 
+                        %>
+                            <%= dBR %>
+                        <% } else { %>
+                            <strong>____/____/_________</strong>
+                        <% } %>
                     </div>
                 </div>
+                <% } %>
                 <div class="col">
                     <span class="label">Funcionário:</span>
                     <div class="value">
                         <%= os.funcionario_nome || 'Não informado' %>
                     </div>
                 </div>
+                <% if (typeof tipo !== 'undefined' && tipo === 'Entrada') { %>
+                <div class="col"></div>
+                <% } %>
             </div>
         </div>
 
@@ -487,7 +499,13 @@
             <div class="row" style="justify-content: flex-end;">
                 <div style="font-size: 18px;">
                     <span class="label" style="display:inline; font-size:18px;">Valor Total:</span>
-                    <strong>R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %></strong>
+                    <strong>
+                        <% if (os.is_garantia === 1) { %>
+                            Garantia
+                        <% } else { %>
+                            R$ <%= os.valor ? os.valor.toFixed(2).replace('.', ',' ) : '0,00' %>
+                        <% } %>
+                    </strong>
                 </div>
             </div>
         </div>
@@ -509,22 +527,26 @@
         </div>
 
         <div class="footer">
+            <% if (typeof tipo === 'undefined' || tipo === 'Entrada') { %>
             <div class="footer-row">
                 <div class="signature-box">
-                    <div class="signature-line">Assinatura do Atendente (Entrada)</div>
+                    <div class="signature-line">Assinatura do Atendente</div>
                 </div>
                 <div class="signature-box">
-                    <div class="signature-line">Assinatura do Cliente (Entrada)</div>
+                    <div class="signature-line">Assinatura do Cliente</div>
                 </div>
             </div>
+            <% } %>
+            <% if (typeof tipo === 'undefined' || tipo === 'Saída') { %>
             <div class="footer-row">
                 <div class="signature-box">
-                    <div class="signature-line">Assinatura do Atendente (Retirada)</div>
+                    <div class="signature-line">Assinatura do Atendente</div>
                 </div>
                 <div class="signature-box">
-                    <div class="signature-line">Assinatura do Cliente (Retirada)</div>
+                    <div class="signature-line">Assinatura do Cliente</div>
                 </div>
             </div>
+            <% } %>
         </div>
     </div>
 </body>
