@@ -72,23 +72,24 @@ exports.salvar = (req, res) => {
         numero_os, cliente_id, data_abertura, data_entrega, status,
         selecao_aparelho, aparelho_outro, aparelho_marca, aparelho_modelo, aparelho_cor,
         aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho,
-        valor, funcionario_nome
+        valor, funcionario_nome, is_garantia
     } = req.body;
 
     const aparelhoFinal = (selecao_aparelho === 'Outro') ? aparelho_outro : selecao_aparelho;
+    const isGarantiaNum = is_garantia ? 1 : 0;
 
     db.run(
         `INSERT INTO ordens (
             numero_os, cliente_id, data_abertura, data_entrega, status, 
             selecao_aparelho, aparelho_marca, aparelho_modelo, aparelho_cor, 
             aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho, 
-            valor, funcionario_nome
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            valor, funcionario_nome, is_garantia
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             numero_os, cliente_id, data_abertura || new Date().toISOString().split('T')[0], data_entrega || null, status,
             aparelhoFinal, aparelho_marca, aparelho_modelo, aparelho_cor,
             aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho,
-            valor || 0, funcionario_nome
+            valor || 0, funcionario_nome, isGarantiaNum
         ],
         function (err) {
             if (err) {
@@ -126,27 +127,36 @@ exports.editar = (req, res) => {
 
 exports.atualizar = (req, res) => {
     const id = req.params.id;
-    const {
-        numero_os, cliente_id, data_abertura, data_entrega, status,
-        selecao_aparelho, aparelho_outro, aparelho_marca, aparelho_modelo, aparelho_cor,
-        aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho,
-        valor, funcionario_nome
-    } = req.body;
+    
+    // Verifica se a OS já está finalizada antes de permitir a atualização
+    db.get(`SELECT status FROM ordens WHERE id = ?`, [id], (err, row) => {
+        if (err || !row) return res.status(404).send("OS não encontrada");
+        if (row.status === 'Finalizado') {
+            return res.status(403).send("Não é possível editar uma OS que já foi finalizada.");
+        }
 
-    const aparelhoFinal = (selecao_aparelho === 'Outro') ? aparelho_outro : selecao_aparelho;
+        const {
+            numero_os, cliente_id, data_abertura, data_entrega, status,
+            selecao_aparelho, aparelho_outro, aparelho_marca, aparelho_modelo, aparelho_cor,
+            aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho,
+            valor, funcionario_nome, is_garantia
+        } = req.body;
+
+        const aparelhoFinal = (selecao_aparelho === 'Outro') ? aparelho_outro : selecao_aparelho;
+        const isGarantiaNum = is_garantia ? 1 : 0;
 
     db.run(
         `UPDATE ordens SET 
             numero_os = ?, cliente_id = ?, data_abertura = ?, data_entrega = ?, status = ?, 
             selecao_aparelho = ?, aparelho_marca = ?, aparelho_modelo = ?, aparelho_cor = ?, 
             aparelho_ns = ?, aparelho_imei = ?, descricao_problema = ?, observacoes_aparelho = ?, 
-            valor = ?, funcionario_nome = ?
+            valor = ?, funcionario_nome = ?, is_garantia = ?
         WHERE id = ?`,
         [
             numero_os, cliente_id, data_abertura, data_entrega || null, status,
             aparelhoFinal, aparelho_marca, aparelho_modelo, aparelho_cor,
             aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho,
-            valor || 0, funcionario_nome, id
+            valor || 0, funcionario_nome, isGarantiaNum, id
         ],
         function (err) {
             if (err) {
@@ -156,6 +166,7 @@ exports.atualizar = (req, res) => {
             res.redirect('/os');
         }
     );
+    });
 };
 
 exports.excluir = (req, res) => {
@@ -169,7 +180,7 @@ exports.excluir = (req, res) => {
     });
 };
 
-exports.imprimir = (req, res) => {
+exports.imprimirEntrada = (req, res) => {
     const id = req.params.id;
     db.get(`
         SELECT ordens.*, clientes.nome as cliente_nome, clientes.telefone as cliente_telefone, clientes.cpf as cliente_cpf 
@@ -184,9 +195,34 @@ exports.imprimir = (req, res) => {
                 if (err) config = {};
 
                 res.render('os/print', {
-                    title: 'Imprimir OS',
+                    title: 'Imprimir OS - Entrada',
                     os,
-                    config: config || {}
+                    config: config || {},
+                    tipo: 'Entrada'
+                });
+            });
+        });
+};
+
+exports.imprimirSaida = (req, res) => {
+    const id = req.params.id;
+    db.get(`
+        SELECT ordens.*, clientes.nome as cliente_nome, clientes.telefone as cliente_telefone, clientes.cpf as cliente_cpf 
+        FROM ordens 
+        LEFT JOIN clientes ON ordens.cliente_id = clientes.id 
+        WHERE ordens.id = ?`,
+        [id], (err, os) => {
+            if (err || !os) return res.status(404).send("OS não encontrada");
+
+            // Buscar configurações do sistema para o cabeçalho
+            db.get(`SELECT * FROM configuracoes WHERE id = 1`, [], (err, config) => {
+                if (err) config = {};
+
+                res.render('os/print', {
+                    title: 'Imprimir OS - Saída',
+                    os,
+                    config: config || {},
+                    tipo: 'Saída'
                 });
             });
         });

@@ -41,7 +41,7 @@ app.use(methodOverride('_method'));
 // Middleware global para injetar o usuário mockado (Loja), configurações e status em todas as telas
 app.use((req, res, next) => {
     // Bloquear aba de configurações se navegar para qualquer outra página
-    const abasDeNavegacao = ['/dashboard', '/clientes', '/os', '/funcionarios', '/etiquetas', '/'];
+    const abasDeNavegacao = ['/dashboard', '/clientes', '/os', '/funcionarios', '/'];
     if (req.session && abasDeNavegacao.some(aba => req.path === aba || req.path.startsWith(aba + '/'))) {
         req.session.configAuthenticated = false;
     }
@@ -52,6 +52,7 @@ app.use((req, res, next) => {
         req.session.user = lojaUser;
     }
     res.locals.user = lojaUser;
+    res.locals.configAuthenticated = req.session ? req.session.configAuthenticated : false;
 
     db.get('SELECT * FROM configuracoes WHERE id = 1', [], (err, config) => {
         if (err) {
