@@ -66,6 +66,12 @@
                                     <small class="text-muted">Formatos aceitos: PNG, JPG.</small>
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Normas Importantes (OS)</label>
+                            <textarea name="normas_os" class="form-control" rows="8"><%= config.normas_os !== undefined && config.normas_os !== null ? config.normas_os : 'O prazo para elaboração do orçamento é de 5 à 15 dias úteis;\nNão nos responsabilizamos por perda de dados, armazenamentos, agenda, jogos, músicas e etc.;\nO prazo de retirada do aparelho é de até 30 dias, após esse prazo será cobrado uma taxa diária de R$1,00 pelo armazenamento;\nCaso outra pessoa venha retirar o aparelho, será obrigatório a apresentação da OS com autorização prévia;\nGarantia de 90 dias para todos os tipos de consertos;\nHorário de funcionamento de Segunda a Sábado 10h00 às 22h00, Domingo 13h00 as 20h00;\nNão sendo retirado o aparelho em até 90 dias, tal fato será considerado como abandono;\nOs aparelhos dado como abandono, serão vendidos pelo valor do serviço contratado.' %></textarea>
+                            <small class="text-muted">Cada linha preenchida será um item (número) nas normas da Ordem de Serviço na hora da impressão.</small>
+                        </div>
+
                         <div class="form-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
                             <button type="submit" class="btn btn-primary" style="width: 100%;"><i
                                     class="fas fa-save"></i> Atualizar Configurações</button>

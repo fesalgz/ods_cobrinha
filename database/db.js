@@ -93,7 +93,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
                     empresa_endereco TEXT,
                     empresa_telefone TEXT,
                     logo_path TEXT,
-                    tema_escuro INTEGER DEFAULT 0
+                    tema_escuro INTEGER DEFAULT 0,
+                    normas_os TEXT
                 )
             `, (err) => {
                 if (!err) {
@@ -109,6 +110,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
             db.run("ALTER TABLE configuracoes ADD COLUMN tema_escuro INTEGER DEFAULT 0", (err) => { });
             db.run("ALTER TABLE configuracoes ADD COLUMN nome_sistema TEXT DEFAULT 'Cobrinha Games'", (err) => { });
             db.run("ALTER TABLE configuracoes ADD COLUMN senha_painel TEXT DEFAULT 'admin'", (err) => { });
+            db.run("ALTER TABLE configuracoes ADD COLUMN normas_os TEXT", (err) => { });
         });
     }
 });
