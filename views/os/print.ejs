@@ -495,6 +495,28 @@
 
         </div>
 
+        <% if (typeof tipo !== 'undefined' && tipo === 'Saída' && os.motivo_finalizacao) { %>
+        <div class="section-detalhes">
+            <h3 class="section-title">Detalhes da Finalização</h3>
+
+            <div class="row">
+                <div class="col" style="flex: none; width: 100%; margin-bottom: 10px;">
+                    <span class="label">Motivo:</span>
+                    <div class="value"><strong><%= os.motivo_finalizacao %></strong></div>
+                </div>
+            </div>
+
+            <% if (os.justificativa_finalizacao) { %>
+            <span class="label">Justificativa / Observações da Finalização:</span>
+            <div class="box-content flex-grow-box" style="white-space: normal !important;">
+                <% const linhasJ=os.justificativa_finalizacao.trim().split(/\r?\n/); for(let i=0; i < linhasJ.length; i++) { %>
+                    <%= linhasJ[i] %><br>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+        <% } %>
+
         <div class="section">
             <div class="row" style="justify-content: flex-end;">
                 <div style="font-size: 18px;">

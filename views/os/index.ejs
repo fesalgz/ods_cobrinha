@@ -73,6 +73,14 @@
                                                 class="fas fa-print"></i> Saída</a>
                                         <% } %>
                                         <% if (os.status !== 'Finalizado') { %>
+                                        <button type="button" class="btn btn-sm btn-primary btn-finalizar-os" title="Finalizar OS" 
+                                            data-id="<%= os.id %>"
+                                            data-problema="<%= os.descricao_problema || '' %>"
+                                            data-observacoes="<%= os.observacoes_aparelho || '' %>"
+                                            data-valor="<%= os.valor || 0 %>"
+                                            data-garantia="<%= os.is_garantia || 0 %>">
+                                            <i class="fas fa-check-circle"></i> Finalizar
+                                        </button>
                                         <a href="/os/editar/<%= os.id %>" class="btn btn-sm btn-info" title="Editar"><i
                                                 class="fas fa-edit"></i></a>
                                         <% } else { %>
@@ -101,5 +109,183 @@
             </table>
         </div>
     </div>
+
+    <!-- Modal de Finalização -->
+    <div id="modalFinalizar" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalFinalizar()">&times;</span>
+            <h2><i class="fas fa-check-circle" style="color: var(--primary);"></i> Finalizar Ordem de Serviço</h2>
+            <hr>
+            <form id="formFinalizarOS" method="POST" action="">
+                <div class="form-group mb-3">
+                    <label style="font-weight: bold;">Motivo da Finalização <span style="color:red;">*</span></label>
+                    <select name="motivo_finalizacao" id="motivo_finalizacao" class="form-control" required onchange="verificarJustificativa()">
+                        <option value="">Selecione um motivo...</option>
+                        <option value="Reparo Concluído">Reparo Concluído</option>
+                        <option value="Sem Defeito Constatado">Sem Defeito Constatado</option>
+                        <option value="Orçamento Recusado">Orçamento Recusado</option>
+                        <option value="Cancelamento a Pedido do Cliente">Cancelamento a Pedido do Cliente</option>
+                        <option value="Aparelho Abandonado">Aparelho Abandonado</option>
+                        <option value="Sem Reparo Técnico">Sem Reparo Técnico</option>
+                    </select>
+                </div>
+                
+                <div class="form-group mb-3" id="divJustificativa" style="display: none;">
+                    <label style="font-weight: bold;">Justificativa / Detalhes</label>
+                    <textarea name="justificativa_finalizacao" id="justificativa_finalizacao" class="form-control" rows="3" placeholder="Explique os detalhes do encerramento (Obrigatório em alguns casos)"></textarea>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label style="font-weight: bold;">Problema Relatado</label>
+                    <textarea name="descricao_problema" id="finalizar_problema" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label style="font-weight: bold;">Estado do Aparelho / Observações</label>
+                    <textarea name="observacoes_aparelho" id="finalizar_observacoes" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                        <label style="font-weight: bold; margin-bottom: 0;">Valor Total Final (R$)</label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer; color: var(--primary); margin-bottom: 0;">
+                            <input type="checkbox" name="is_garantia" id="finalizar_garantia" value="1" style="width: 16px; height: 16px; cursor: pointer;" onchange="toggleValorGarantiaFinalizar()">
+                            <span>Marcar como Garantia</span>
+                        </label>
+                    </div>
+                    <input type="number" step="0.01" name="valor" id="finalizar_valor" class="form-control">
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px; font-size: 16px;"><i class="fas fa-save"></i> Confirmar Finalização</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0; 
+        top: 0; 
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.6);
+        backdrop-filter: blur(3px);
+    }
+    .modal-content {
+        background-color: var(--bg-card);
+        margin: 5% auto;
+        padding: 25px;
+        border: 1px solid var(--border-color);
+        width: 90%;
+        max-width: 600px;
+        border-radius: var(--border-radius, 8px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .close {
+        color: var(--text-muted);
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .close:hover, .close:focus {
+        color: var(--text-main);
+        text-decoration: none;
+    }
+    </style>
+
+    <script>
+    function toggleValorGarantiaFinalizar() {
+        const checkbox = document.getElementById('finalizar_garantia');
+        const inputValor = document.getElementById('finalizar_valor');
+        if (checkbox.checked) {
+            inputValor.value = 0;
+            inputValor.setAttribute('readonly', 'readonly');
+            inputValor.style.pointerEvents = 'none';
+        } else {
+            inputValor.removeAttribute('readonly');
+            inputValor.style.pointerEvents = 'auto';
+        }
+    }
+
+    function verificarJustificativa() {
+        const motivo = document.getElementById('motivo_finalizacao').value;
+        const divJustificativa = document.getElementById('divJustificativa');
+        const textarea = document.getElementById('justificativa_finalizacao');
+        
+        if (!motivo) {
+            divJustificativa.style.display = 'none';
+            textarea.required = false;
+            return;
+        }
+
+        divJustificativa.style.display = 'block';
+        if (motivo === 'Orçamento Recusado' || motivo === 'Cancelamento a Pedido do Cliente' || motivo === 'Sem Reparo Técnico') {
+            textarea.required = true;
+            textarea.placeholder = "Explique os detalhes do encerramento (Obrigatório para este motivo)...";
+        } else {
+            textarea.required = false;
+            textarea.placeholder = "Detalhes adicionais (Opcional)...";
+        }
+    }
+
+    function fecharModalFinalizar() {
+        document.getElementById('modalFinalizar').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const btns = document.querySelectorAll('.btn-finalizar-os');
+        btns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const problema = this.getAttribute('data-problema');
+                const observacoes = this.getAttribute('data-observacoes');
+                const valor = this.getAttribute('data-valor');
+                const garantia = this.getAttribute('data-garantia');
+                
+                document.getElementById('formFinalizarOS').action = '/os/finalizar/' + id;
+                document.getElementById('finalizar_problema').value = problema;
+                document.getElementById('finalizar_observacoes').value = observacoes;
+                document.getElementById('finalizar_valor').value = valor;
+                document.getElementById('finalizar_garantia').checked = (garantia === '1' || garantia === 1);
+                toggleValorGarantiaFinalizar();
+                
+                document.getElementById('motivo_finalizacao').value = '';
+                document.getElementById('justificativa_finalizacao').value = '';
+                verificarJustificativa();
+                
+                document.getElementById('modalFinalizar').style.display = 'block';
+            });
+        });
+        
+        const formFinalizar = document.getElementById('formFinalizarOS');
+        const inputValor = document.getElementById('finalizar_valor');
+        const checkGarantia = document.getElementById('finalizar_garantia');
+
+        formFinalizar.addEventListener('submit', function(e) {
+            const garantia = checkGarantia.checked;
+            const valor = parseFloat(inputValor.value) || 0;
+            
+            inputValor.setCustomValidity('');
+            
+            if (!garantia && valor <= 0) {
+                e.preventDefault();
+                inputValor.setCustomValidity('O valor total deve ser maior que 0 (a não ser que seja garantia).');
+                inputValor.reportValidity();
+            }
+        });
+
+        inputValor.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+        checkGarantia.addEventListener('change', function() {
+            inputValor.setCustomValidity('');
+        });
+    });
+    </script>
 
     <%- include('../partials/footer') %>

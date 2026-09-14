@@ -7,6 +7,7 @@ router.get('/nova', osController.formulario);
 router.post('/salvar', osController.salvar);
 router.get('/editar/:id', osController.editar);
 router.post('/atualizar/:id', osController.atualizar);
+router.post('/finalizar/:id', osController.finalizar);
 router.post('/excluir/:id', osController.excluir);
 router.get('/imprimir/entrada/:id', osController.imprimirEntrada);
 router.get('/imprimir/saida/:id', osController.imprimirSaida);
