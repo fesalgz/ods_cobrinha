@@ -144,6 +144,11 @@ exports.atualizar = (req, res) => {
 
         const aparelhoFinal = (selecao_aparelho === 'Outro') ? aparelho_outro : selecao_aparelho;
         const isGarantiaNum = is_garantia ? 1 : 0;
+        
+        let dataEntregaFinal = data_entrega || null;
+        if (status === 'Finalizado') {
+            dataEntregaFinal = new Date().toISOString().split('T')[0];
+        }
 
     db.run(
         `UPDATE ordens SET 
@@ -153,7 +158,7 @@ exports.atualizar = (req, res) => {
             valor = ?, funcionario_nome = ?, is_garantia = ?
         WHERE id = ?`,
         [
-            numero_os, cliente_id, data_abertura, data_entrega || null, status,
+            numero_os, cliente_id, data_abertura, dataEntregaFinal, status,
             aparelhoFinal, aparelho_marca, aparelho_modelo, aparelho_cor,
             aparelho_ns, aparelho_imei, descricao_problema, observacoes_aparelho,
             valor || 0, funcionario_nome, isGarantiaNum, id
@@ -167,6 +172,47 @@ exports.atualizar = (req, res) => {
         }
     );
     });
+};
+
+exports.finalizar = (req, res) => {
+    const id = req.params.id;
+    const {
+        motivo_finalizacao, justificativa_finalizacao,
+        descricao_problema, observacoes_aparelho, valor, is_garantia
+    } = req.body;
+
+    const isGarantiaNum = is_garantia ? 1 : 0;
+    const today = new Date().toISOString().split('T')[0];
+
+    db.run(
+        `UPDATE ordens SET 
+            status = 'Finalizado',
+            motivo_finalizacao = ?, 
+            justificativa_finalizacao = ?, 
+            descricao_problema = ?, 
+            observacoes_aparelho = ?, 
+            valor = ?,
+            is_garantia = ?,
+            data_entrega = ?
+        WHERE id = ?`,
+        [
+            motivo_finalizacao, 
+            justificativa_finalizacao || null, 
+            descricao_problema, 
+            observacoes_aparelho, 
+            valor || 0, 
+            isGarantiaNum,
+            today,
+            id
+        ],
+        function (err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Erro ao finalizar OS");
+            }
+            res.redirect('/os');
+        }
+    );
 };
 
 exports.excluir = (req, res) => {

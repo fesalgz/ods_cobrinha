@@ -14,6 +14,7 @@ const dashboardRoutes = require('./routes/dashboard');
 const funcionariosRoutes = require('./routes/funcionarios');
 const configuracoesRoutes = require('./routes/configuracoes');
 const etiquetasRoutes = require('./routes/etiquetas');
+const sistemaRoutes = require('./routes/sistema');
 
 const app = express();
 const PORT = 3000;
@@ -40,8 +41,8 @@ app.use(methodOverride('_method'));
 
 // Middleware global para injetar o usuário mockado (Loja), configurações e status em todas as telas
 app.use((req, res, next) => {
-    // Bloquear aba de configurações se navegar para qualquer outra página
-    const abasDeNavegacao = ['/dashboard', '/clientes', '/os', '/funcionarios', '/'];
+    // Bloquear aba de configurações de sistema se navegar para qualquer outra página
+    const abasDeNavegacao = ['/dashboard', '/clientes', '/os', '/funcionarios', '/', '/configuracoes', '/etiquetas'];
     if (req.session && abasDeNavegacao.some(aba => req.path === aba || req.path.startsWith(aba + '/'))) {
         req.session.configAuthenticated = false;
     }
@@ -114,6 +115,7 @@ app.use('/os', osRoutes);
 app.use('/funcionarios', funcionariosRoutes);
 app.use('/configuracoes', configuracoesRoutes);
 app.use('/etiquetas', etiquetasRoutes);
+app.use('/sistema', sistemaRoutes);
 
 // Rotas de atualização
 app.get('/api/updater/status', (req, res) => {

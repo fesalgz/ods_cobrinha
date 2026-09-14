@@ -495,6 +495,28 @@
 
         </div>
 
+        <% if (typeof tipo !== 'undefined' && tipo === 'Saída' && os.motivo_finalizacao) { %>
+        <div class="section-detalhes">
+            <h3 class="section-title">Detalhes da Finalização</h3>
+
+            <div class="row">
+                <div class="col" style="flex: none; width: 100%; margin-bottom: 10px;">
+                    <span class="label">Motivo:</span>
+                    <div class="value"><strong><%= os.motivo_finalizacao %></strong></div>
+                </div>
+            </div>
+
+            <% if (os.justificativa_finalizacao) { %>
+            <span class="label">Justificativa / Observações da Finalização:</span>
+            <div class="box-content flex-grow-box" style="white-space: normal !important;">
+                <% const linhasJ=os.justificativa_finalizacao.trim().split(/\r?\n/); for(let i=0; i < linhasJ.length; i++) { %>
+                    <%= linhasJ[i] %><br>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+        <% } %>
+
         <div class="section">
             <div class="row" style="justify-content: flex-end;">
                 <div style="font-size: 18px;">
@@ -513,16 +535,25 @@
         <div class="termos-container">
             <h4>Normas Importantes:</h4>
             <ol>
-                <li>O prazo para elaboração do orçamento é de 5 à 15 dias úteis;</li>
-                <li>Não nos responsabilizamos por perda de dados, armazenamentos, agenda, jogos, músicas e etc.;</li>
-                <li>O prazo de retirada do aparelho é de até 30 dias, após esse prazo será cobrado uma taxa diária de
-                    R$1,00 pelo armazenamento;</li>
-                <li>Caso outra pessoa venha retirar o aparelho, será obrigatório a apresentação da OS com autorização
-                    prévia;</li>
-                <li>Garantia de 90 dias para todos os tipos de consertos;</li>
-                <li>Horário de funcionamento de Segunda a Sábado 10h00 às 22h00, Domingo 13h00 as 20h00;</li>
-                <li>Não sendo retirado o aparelho em até 90 dias, tal fato será considerado como abandono;</li>
-                <li>Os aparelhos dado como abandono, serão vendidos pelo valor do serviço contratado.</li>
+                <%
+                    const normasPadrao = [
+                        'O prazo para elaboração do orçamento é de 5 à 15 dias úteis;',
+                        'Não nos responsabilizamos por perda de dados, armazenamentos, agenda, jogos, músicas e etc.;',
+                        'O prazo de retirada do aparelho é de até 30 dias, após esse prazo será cobrado uma taxa diária de R$1,00 pelo armazenamento;',
+                        'Caso outra pessoa venha retirar o aparelho, será obrigatório a apresentação da OS com autorização prévia;',
+                        'Garantia de 90 dias para todos os tipos de consertos;',
+                        'Horário de funcionamento de Segunda a Sábado 10h00 às 22h00, Domingo 13h00 as 20h00;',
+                        'Não sendo retirado o aparelho em até 90 dias, tal fato será considerado como abandono;',
+                        'Os aparelhos dado como abandono, serão vendidos pelo valor do serviço contratado.'
+                    ];
+                    let linhasNormas = normasPadrao;
+                    if (typeof config !== 'undefined' && config.normas_os) {
+                        linhasNormas = config.normas_os.split(/\r?\n/).filter(linha => linha.trim() !== '');
+                    }
+                %>
+                <% linhasNormas.forEach(function(linha) { %>
+                    <li><%= linha.trim() %></li>
+                <% }); %>
             </ol>
         </div>
 

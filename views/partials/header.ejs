@@ -36,23 +36,23 @@
                             class="nav-link <%= typeof title !== 'undefined' && title.includes('Ordens') ? 'active' : '' %>"><i
                                 class="fas fa-clipboard-list" style="width: 20px; text-align: center;"></i> Ordens de
                             Serviço</a></li>
-                    <% if (typeof configAuthenticated !== 'undefined' && configAuthenticated) { %>
-                    <li class="nav-item"><a href="/etiquetas"
-                            class="nav-link <%= typeof title !== 'undefined' && title.includes('Etiquetas') ? 'active' : '' %>"><i
-                                class="fas fa-tags" style="width: 20px; text-align: center;"></i> Etiquetas</a></li>
-                    <% } %>
-                    <% if (typeof user !=='undefined' && (user.role==='admin' || user.role==='gerente' )) { %>
-                        <li class="nav-item"><a href="/funcionarios"
-                                class="nav-link <%= typeof title !== 'undefined' && title.includes('Funcionário') ? 'active' : '' %>"><i
-                                    class="fas fa-user-tie" style="width: 20px; text-align: center;"></i>
-                                Funcionários</a></li>
+                    <% if (typeof configAuthenticated !=='undefined' && configAuthenticated) { %>
+                        <li class="nav-item"><a href="/etiquetas"
+                                class="nav-link <%= typeof title !== 'undefined' && title.includes('Etiquetas') ? 'active' : '' %>"><i
+                                    class="fas fa-tags" style="width: 20px; text-align: center;"></i> Etiquetas</a></li>
                         <% } %>
-                            <% if (typeof user !=='undefined' && user.role==='admin' ) { %>
-                                <li class="nav-item"><a href="/configuracoes"
-                                        class="nav-link <%= typeof title !== 'undefined' && title.includes('Configuraç') ? 'active' : '' %>"><i
-                                            class="fas fa-cog" style="width: 20px; text-align: center;"></i>
-                                        Configurações</a></li>
+                            <% if (typeof user !=='undefined' && (user.role==='admin' || user.role==='gerente' )) { %>
+                                <li class="nav-item"><a href="/funcionarios"
+                                        class="nav-link <%= typeof title !== 'undefined' && title.includes('Funcionário') ? 'active' : '' %>"><i
+                                            class="fas fa-user-tie" style="width: 20px; text-align: center;"></i>
+                                        Funcionários</a></li>
                                 <% } %>
+                                    <% if (typeof user !=='undefined' && user.role==='admin' ) { %>
+                                        <li class="nav-item"><a href="/configuracoes"
+                                                class="nav-link <%= typeof title !== 'undefined' && title.includes('Identidade') ? 'active' : '' %>"><i
+                                                    class="fas fa-cog" style="width: 20px; text-align: center;"></i>
+                                                Configurações</a></li>
+                                        <% } %>
                 </ul>
             </nav>
         </aside>
@@ -64,17 +64,24 @@
                 </h1>
                 <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
                     <div id="updater-container" style="display: flex; align-items: center; gap: 10px;">
-                        <span id="updater-status-text" style="font-size: 13px; color: var(--text-color, #6c757d); display: none; font-weight: 500;"></span>
-                        <button id="btn-check-update" onclick="checkUpdate()" title="Buscar Atualização" style="padding: 0; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: var(--text-color, #6c757d); cursor: pointer; transition: all 0.2s;">
+                        <span id="updater-status-text"
+                            style="font-size: 13px; color: var(--text-color, #6c757d); display: none; font-weight: 500;"></span>
+                        <button id="btn-check-update" onclick="checkUpdate()" title="Buscar Atualização"
+                            style="padding: 0; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: var(--text-color, #6c757d); cursor: pointer; transition: all 0.2s;">
                             <i class="fas fa-sync-alt"></i>
                         </button>
-                        <button id="btn-download-update" onclick="downloadUpdate()" title="Baixar Atualização" style="display: none; padding: 0; font-size: 16px; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: #28a745; color: white; cursor: pointer; box-shadow: 0 2px 4px rgba(40,167,69,0.2); transition: all 0.2s;">
+                        <button id="btn-download-update" onclick="downloadUpdate()" title="Baixar Atualização"
+                            style="display: none; padding: 0; font-size: 16px; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: none; background: #28a745; color: white; cursor: pointer; box-shadow: 0 2px 4px rgba(40,167,69,0.2); transition: all 0.2s;">
                             <i class="fas fa-download"></i>
                         </button>
                     </div>
                     <a href="#" onclick="toggleTema(); return false;" title="Alternar Modo Escuro"
                         style="color: var(--text-color, #6c757d); text-decoration: none; font-size: 18px; display: flex; align-items: center;">
                         <i class="fas fa-moon"></i>
+                    </a>
+                    <a href="/sistema" title="Configurações do Sistema"
+                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
+                        <i class="fas fa-cogs"></i>
                     </a>
                 </div>
             </header>

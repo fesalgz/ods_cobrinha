@@ -22,15 +22,11 @@
                         value="<%= os ? os.data_abertura : today %>" <%=os ? 'readonly' : '' %> required>
             </div>
 
-            <div class="form-group col-4" id="container_data_entrega" style="display: none;">
-                <label for="data_entrega">Data de Entrega</label>
-                <input type="date" id="data_entrega" name="data_entrega" class="form-control"
-                    value="<%= (os && os.data_entrega) ? os.data_entrega : '' %>" <%= (os && os.status === 'Finalizado') ? 'readonly' : '' %>>
-            </div>
+            <!-- Data de entrega será preenchida automaticamente ao finalizar -->
 
             <div class="form-group col-4">
                 <label for="status">Status</label>
-                <select id="status" name="status" class="form-control" onchange="toggleDataEntrega()" <%= (os && os.status === 'Finalizado') ? 'disabled' : 'required' %>>
+                <select id="status" name="status" class="form-control" <%= (os && os.status === 'Finalizado') ? 'disabled' : 'required' %>>
                     <option value="Aberto" <%=os && os.status==='Aberto' ? 'selected' : '' %>>Aberto</option>
                     <option value="Finalizado" <%=os && os.status==='Finalizado' ? 'selected' : '' %>>Finalizado
                     </option>
@@ -163,5 +159,41 @@
             </div>
         </form>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form.form-grid');
+        const inputValor = document.getElementById('valor');
+        const garantiaCheckbox = document.getElementById('is_garantia');
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const isGarantia = garantiaCheckbox ? garantiaCheckbox.checked : false;
+                
+                // Só valida se o campo de valor não estiver desabilitado
+                if (inputValor && !inputValor.disabled) {
+                    inputValor.setCustomValidity('');
+                    const valor = parseFloat(inputValor.value) || 0;
+                    if (!isGarantia && valor <= 0) {
+                        e.preventDefault();
+                        inputValor.setCustomValidity('O valor do serviço deve ser maior que 0 (a não ser que seja garantia).');
+                        inputValor.reportValidity();
+                    }
+                }
+            });
+        }
+
+        if (inputValor) {
+            inputValor.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        }
+        if (garantiaCheckbox) {
+            garantiaCheckbox.addEventListener('change', function() {
+                if (inputValor) inputValor.setCustomValidity('');
+            });
+        }
+    });
+    </script>
 
     <%- include('../partials/footer') %>

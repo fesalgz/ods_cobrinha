@@ -4,28 +4,20 @@
         <div class="page-header" style="margin-bottom: 30px;">
             <h1
                 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow);">
-                <i class="fas fa-cog"></i> Painel de Controle e Configurações
+                <i class="fas fa-id-card"></i> Identidade do Sistema
             </h1>
-            <p class="text-muted">Gerencie as diretrizes do sistema e banco de dados.</p>
+            <p class="text-muted">Gerencie as informações exibidas nas impressões de Ordem de Serviço.</p>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px;">
-            <!-- Card de Configurações Gerais -->
+            <!-- Card de Configurações da Empresa -->
             <div class="card" style="margin-bottom: 0;">
                 <div class="card-header">
-                    <h2><i class="fas fa-sliders-h" style="color: var(--primary);"></i> Identidade do Sistema</h2>
+                    <h2><i class="fas fa-building" style="color: var(--primary);"></i> Dados da Empresa</h2>
                 </div>
                 <div class="card-body">
                     <form action="/configuracoes/salvar" method="POST" enctype="multipart/form-data">
-                        <div class="form-group mb-3">
-                            <label
-                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nome
-                                do Sistema (Menu Lateral)</label>
-                            <input type="text" name="nome_sistema" class="form-control"
-                                value="<%= config.nome_sistema || 'Cobrinha Games' %>" required>
-                            <small class="text-muted">Identificação exibida na barra lateral.</small>
-                        </div>
-
+                        
                         <div class="form-group mb-3">
                             <label
                                 style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nome
@@ -66,119 +58,15 @@
                                     <small class="text-muted">Formatos aceitos: PNG, JPG.</small>
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Normas Importantes (OS)</label>
+                            <textarea name="normas_os" class="form-control" rows="8"><%= config.normas_os !== undefined && config.normas_os !== null ? config.normas_os : 'O prazo para elaboração do orçamento é de 5 à 15 dias úteis;\nNão nos responsabilizamos por perda de dados, armazenamentos, agenda, jogos, músicas e etc.;\nO prazo de retirada do aparelho é de até 30 dias, após esse prazo será cobrado uma taxa diária de R$1,00 pelo armazenamento;\nCaso outra pessoa venha retirar o aparelho, será obrigatório a apresentação da OS com autorização prévia;\nGarantia de 90 dias para todos os tipos de consertos;\nHorário de funcionamento de Segunda a Sábado 10h00 às 22h00, Domingo 13h00 as 20h00;\nNão sendo retirado o aparelho em até 90 dias, tal fato será considerado como abandono;\nOs aparelhos dado como abandono, serão vendidos pelo valor do serviço contratado.' %></textarea>
+                            <small class="text-muted">Cada linha preenchida será um item (número) nas normas da Ordem de Serviço na hora da impressão.</small>
+                        </div>
+
                         <div class="form-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
                             <button type="submit" class="btn btn-primary" style="width: 100%;"><i
-                                    class="fas fa-save"></i> Atualizar Configurações</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Card de Banco de Dados -->
-            <div class="card"
-                style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div class="card-header" style="border-bottom-color: rgba(229, 62, 62, 0.2);">
-                        <h2 style="color: #fc8181;"><i class="fas fa-database"></i> Núcleo do Sistema (DB)</h2>
-                    </div>
-                    <div class="card-body">
-                        <div
-                            style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
-                            <p style="margin-bottom: 0;"><strong>Status de Armazenamento:</strong>
-                                <span class="badge"
-                                    style="background: rgba(234, 179, 8, 0.15); color: #ecc94b; border: 1px solid rgba(234, 179, 8, 0.2);">
-                                    <%= typeof dbSize !=='undefined' ? dbSize : 'Desconhecido' %>
-                                </span>
-                            </p>
-                        </div>
-
-                        <h3
-                            style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; color: var(--text-main);">
-                            Ações de Manutenção</h3>
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                            <!-- Backup -->
-                            <a href="/configuracoes/backup" class="btn btn-success" style="width: 100%;">
-                                <i class="fas fa-download"></i> Extrair Backup (.db)
-                            </a>
-
-                            <!-- Apagar OS -->
-                            <form action="/configuracoes/limpar-os" method="POST"
-                                onsubmit="return confirm('TEM CERTEZA ABSOLUTA?\n\nIsso irá apagar TODAS as Ordens de Serviço cadastradas permanentemente!');"
-                                style="width: 100%;">
-                                <button type="submit" class="btn btn-warning" style="width: 100%;">
-                                    <i class="fas fa-trash-alt"></i> Apagar Todas as OS
-                                </button>
-                            </form>
-
-                            <!-- Apagar Clientes -->
-                            <form action="/configuracoes/limpar-clientes" method="POST"
-                                onsubmit="return confirm('ATENÇÃO: TEM CERTEZA?\n\nIsso irá apagar a lista de TODOS os Clientes cadastrados permanentemente!');"
-                                style="width: 100%;">
-                                <button type="submit" class="btn btn-danger" style="width: 100%;">
-                                    <i class="fas fa-users-slash"></i> Apagar Todos os Clientes
-                                </button>
-                            </form>
-                        </div>
-
-                        <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                            <h3
-                                style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; color: var(--text-main);">
-                                Restauração de Emergência</h3>
-                            <form action="/configuracoes/restaurar" method="POST" enctype="multipart/form-data"
-                                onsubmit="return confirm('ATENÇÃO EXTREMA: \n\nA restauração apaga absolutamente todos os dados atuais do seu sistema de hoje e os substitui pelo arquivo enviado. Só confirme se tiver certeza absoluta do histórico!');">
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="file" name="banco" class="form-control" accept=".db,.sqlite" required
-                                        style="padding: 6px; flex: 1;">
-                                    <button type="submit" class="btn btn-primary" style="text-transform: none;">
-                                        <i class="fas fa-upload"></i> Enviar
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    style="padding: 15px; background: rgba(229, 62, 62, 0.05); border-radius: 8px; border: 1px solid rgba(229, 62, 62, 0.1); margin-top: 20px;">
-                    <small style="color: #fc8181; display: flex; gap: 8px;">
-                        <i class="fas fa-exclamation-triangle" style="margin-top: 3px;"></i>
-                        <span>Ações de excluir são permanentes. Recomenda-se realizar um backup antes de qualquer
-                            operação destrutiva.</span>
-                    </small>
-                </div>
-            </div>
-
-            <!-- Card de Alterar Senha -->
-            <div class="card" style="margin-bottom: 0;">
-                <div class="card-header">
-                    <h2><i class="fas fa-key" style="color: var(--primary);"></i> Segurança do Painel</h2>
-                </div>
-                <div class="card-body">
-                    <% if (typeof errorSenha !== 'undefined' && errorSenha) { %>
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i> <%= errorSenha %>
-                        </div>
-                    <% } %>
-                    <% if (typeof successSenha !== 'undefined' && successSenha) { %>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> <%= successSenha %>
-                        </div>
-                    <% } %>
-                    <form action="/configuracoes/alterar-senha" method="POST">
-                        <div class="form-group mb-3">
-                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Senha Atual</label>
-                            <input type="password" name="senha_atual" class="form-control" required placeholder="Digite a senha atual...">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nova Senha</label>
-                            <input type="password" name="nova_senha" class="form-control" required minlength="3" placeholder="Mínimo 3 caracteres...">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Confirmar Nova Senha</label>
-                            <input type="password" name="confirmar_senha" class="form-control" required minlength="3" placeholder="Confirme a nova senha...">
-                        </div>
-                        <div class="form-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-lock"></i> Alterar Senha</button>
+                                    class="fas fa-save"></i> Atualizar Identidade</button>
                         </div>
                     </form>
                 </div>
