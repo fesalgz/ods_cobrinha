@@ -1,7 +1,7 @@
 {
   "name": "ordens-de-servico-cobrinha",
-  "version": "2.1.0",
-  "description": "Ordens de Serviço - Cobrinha",
+  "version": "2.2.0",
+  "description": "Sistema de Ordem de Serviço",
   "main": "main.js",
   "author": "Felipe Salgado",
   "scripts": {
