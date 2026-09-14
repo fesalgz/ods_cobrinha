@@ -1,0 +1,159 @@
+<%- include('partials/header') %>
+
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <div class="page-header" style="margin-bottom: 30px;">
+            <h1
+                style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow);">
+                <i class="fas fa-cogs"></i> Configurações do Sistema
+            </h1>
+            <p class="text-muted">Gerencie a segurança, banco de dados e o nome do painel.</p>
+        </div>
+
+        <% if (typeof successMsg !== 'undefined' && successMsg) { %>
+            <div class="alert alert-success" style="margin-bottom: 20px;">
+                <i class="fas fa-check-circle"></i> <%= successMsg %>
+            </div>
+        <% } %>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px;">
+            
+            <!-- Card de Nome do Sistema -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header">
+                    <h2><i class="fas fa-desktop" style="color: var(--primary);"></i> Nome do Sistema</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/sistema/salvar-nome" method="POST">
+                        <div class="form-group mb-3">
+                            <label
+                                style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nome
+                                do Sistema (Menu Lateral)</label>
+                            <input type="text" name="nome_sistema" class="form-control"
+                                value="<%= config.nome_sistema || 'Cobrinha Games' %>" required>
+                            <small class="text-muted">Identificação exibida na barra lateral do painel.</small>
+                        </div>
+                        <div class="form-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i
+                                    class="fas fa-save"></i> Atualizar Nome</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Card de Alterar Senha -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header">
+                    <h2><i class="fas fa-key" style="color: var(--primary);"></i> Segurança do Painel</h2>
+                </div>
+                <div class="card-body">
+                    <% if (typeof errorSenha !== 'undefined' && errorSenha) { %>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> <%= errorSenha %>
+                        </div>
+                    <% } %>
+                    <% if (typeof successSenha !== 'undefined' && successSenha) { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <%= successSenha %>
+                        </div>
+                    <% } %>
+                    <form action="/sistema/alterar-senha" method="POST">
+                        <div class="form-group mb-3">
+                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Senha Atual</label>
+                            <input type="password" name="senha_atual" class="form-control" required placeholder="Digite a senha atual...">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Nova Senha</label>
+                            <input type="password" name="nova_senha" class="form-control" required minlength="3" placeholder="Mínimo 3 caracteres...">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label style="font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase;">Confirmar Nova Senha</label>
+                            <input type="password" name="confirmar_senha" class="form-control" required minlength="3" placeholder="Confirme a nova senha...">
+                        </div>
+                        <div class="form-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-lock"></i> Alterar Senha</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Card de Banco de Dados -->
+            <div class="card"
+                style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between; grid-column: 1 / -1;">
+                <div>
+                    <div class="card-header" style="border-bottom-color: rgba(229, 62, 62, 0.2);">
+                        <h2 style="color: #fc8181;"><i class="fas fa-database"></i> Núcleo do Sistema (DB)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div
+                            style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; display: inline-block;">
+                            <p style="margin-bottom: 0;"><strong>Status de Armazenamento:</strong>
+                                <span class="badge"
+                                    style="background: rgba(234, 179, 8, 0.15); color: #ecc94b; border: 1px solid rgba(234, 179, 8, 0.2);">
+                                    <%= typeof dbSize !=='undefined' ? dbSize : 'Desconhecido' %>
+                                </span>
+                            </p>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                            <div>
+                                <h3
+                                    style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; color: var(--text-main);">
+                                    Ações de Manutenção</h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <!-- Backup -->
+                                    <a href="/sistema/backup" class="btn btn-success" style="width: 100%;">
+                                        <i class="fas fa-download"></i> Extrair Backup (.db)
+                                    </a>
+
+                                    <!-- Apagar OS -->
+                                    <form action="/sistema/limpar-os" method="POST"
+                                        onsubmit="return confirm('TEM CERTEZA ABSOLUTA?\n\nIsso irá apagar TODAS as Ordens de Serviço cadastradas permanentemente!');">
+                                        <button type="submit" class="btn btn-warning" style="width: 100%;">
+                                            <i class="fas fa-trash-alt"></i> Apagar Todas as OS
+                                        </button>
+                                    </form>
+
+                                    <!-- Apagar Clientes -->
+                                    <form action="/sistema/limpar-clientes" method="POST"
+                                        onsubmit="return confirm('ATENÇÃO: TEM CERTEZA?\n\nIsso irá apagar a lista de TODOS os Clientes cadastrados permanentemente!');">
+                                        <button type="submit" class="btn btn-danger" style="width: 100%;">
+                                            <i class="fas fa-users-slash"></i> Apagar Todos os Clientes
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3
+                                    style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; color: var(--text-main);">
+                                    Restauração de Emergência</h3>
+                                <form action="/sistema/restaurar" method="POST" enctype="multipart/form-data"
+                                    onsubmit="return confirm('ATENÇÃO EXTREMA: \n\nA restauração apaga absolutamente todos os dados atuais do seu sistema de hoje e os substitui pelo arquivo enviado. Só confirme se tiver certeza absoluta do histórico!');">
+                                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                                        <input type="file" name="banco" class="form-control" accept=".db,.sqlite" required
+                                            style="padding: 10px;">
+                                        <button type="submit" class="btn btn-primary" style="text-transform: none;">
+                                            <i class="fas fa-upload"></i> Enviar Arquivo .db
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div
+                    style="padding: 15px; background: rgba(229, 62, 62, 0.05); border-radius: 8px; border: 1px solid rgba(229, 62, 62, 0.1); margin-top: 20px;">
+                    <small style="color: #fc8181; display: flex; gap: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-top: 3px;"></i>
+                        <span>Ações de excluir são permanentes. Recomenda-se realizar um backup antes de qualquer
+                            operação destrutiva.</span>
+                    </small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>

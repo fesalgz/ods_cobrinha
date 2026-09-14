@@ -49,7 +49,7 @@
                         <% } %>
                             <% if (typeof user !=='undefined' && user.role==='admin' ) { %>
                                 <li class="nav-item"><a href="/configuracoes"
-                                        class="nav-link <%= typeof title !== 'undefined' && title.includes('Configuraç') ? 'active' : '' %>"><i
+                                        class="nav-link <%= typeof title !== 'undefined' && title.includes('Identidade') ? 'active' : '' %>"><i
                                             class="fas fa-cog" style="width: 20px; text-align: center;"></i>
                                         Configurações</a></li>
                                 <% } %>
@@ -64,8 +64,12 @@
                 </h1>
                 <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
                     <a href="#" onclick="toggleTema(); return false;" title="Alternar Modo Escuro"
-                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center;">
+                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
                         <i class="fas fa-moon"></i>
+                    </a>
+                    <a href="/sistema" title="Configurações do Sistema"
+                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
+                        <i class="fas fa-cogs"></i>
                     </a>
                 </div>
             </header>
