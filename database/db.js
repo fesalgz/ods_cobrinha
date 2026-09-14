@@ -74,6 +74,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
                     valor REAL,
                     funcionario_nome TEXT,
                     is_garantia INTEGER DEFAULT 0,
+                    motivo_finalizacao TEXT,
+                    justificativa_finalizacao TEXT,
                     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
                 )
             `);
@@ -82,6 +84,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
             db.run("ALTER TABLE ordens ADD COLUMN funcionario_nome TEXT", (err) => { });
             db.run("ALTER TABLE ordens ADD COLUMN data_entrega TEXT", (err) => { });
             db.run("ALTER TABLE ordens ADD COLUMN is_garantia INTEGER DEFAULT 0", (err) => { });
+            db.run("ALTER TABLE ordens ADD COLUMN motivo_finalizacao TEXT", (err) => { });
+            db.run("ALTER TABLE ordens ADD COLUMN justificativa_finalizacao TEXT", (err) => { });
             db.run("ALTER TABLE usuarios ADD COLUMN nome_os TEXT", (err) => { });
 
             // Criar Tabela de Configurações
