@@ -3,10 +3,16 @@
 // ========================================================
 
 const invoke = async (cmd, payload = {}) => {
-    if (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) {
+    if (window.__TAURI__ && window.__TAURI__.core && typeof window.__TAURI__.core.invoke === 'function') {
         return await window.__TAURI__.core.invoke(cmd, payload);
     }
-    throw new Error('Ambiente Tauri não detectado.');
+    if (window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function') {
+        return await window.__TAURI_INTERNALS__.invoke(cmd, payload);
+    }
+    if (window.__TAURI__ && typeof window.__TAURI__.invoke === 'function') {
+        return await window.__TAURI__.invoke(cmd, payload);
+    }
+    throw new Error('Ambiente Tauri não detectado. Abra pelo aplicativo (npm run dev ou ods_cobrinha.exe), e não direto no navegador comum.');
 };
 
 // Utilitários de Formatação
@@ -546,26 +552,35 @@ async function excluirOrdem(id) {
     }
 }
 
-// Impressão de OS
+// Impressão de OS via iframe invisível (evita bloqueio de popup no WebView2)
 async function imprimirOs(id, tipo = 'Entrada') {
     try {
         const dados = await invoke('get_dados_impressao', { id: Number(id), tipo });
         const { ordem, config } = dados;
 
-        const printWin = window.open('', '_blank', 'width=800,height=900');
-        if (!printWin) {
-            alert('Permita popups para imprimir a OS.');
-            return;
+        let iframe = document.getElementById('print-iframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'print-iframe';
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
         }
 
-        printWin.document.write(`
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(`
             <!DOCTYPE html>
             <html lang="pt-BR">
             <head>
                 <meta charset="UTF-8">
                 <title>OS ${ordem.numero_os} - ${tipo}</title>
                 <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #222; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #222; margin: 0; }
                     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; padding-bottom: 15px; margin-bottom: 20px; }
                     .header h1 { margin: 0; font-size: 24px; }
                     .header p { margin: 3px 0; font-size: 13px; color: #555; }
@@ -576,7 +591,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
                     .normas { font-size: 10px; color: #666; white-space: pre-line; border: 1px dashed #ccc; padding: 10px; border-radius: 4px; margin-top: 20px; }
                     .assinaturas { margin-top: 40px; display: flex; justify-content: space-around; font-size: 12px; }
                     .assinatura-linha { border-top: 1px solid #222; width: 220px; text-align: center; padding-top: 5px; }
-                    @media print { button { display: none; } body { padding: 0; } }
+                    @media print { body { padding: 15px; } }
                 </style>
             </head>
             <body>
@@ -629,11 +644,12 @@ async function imprimirOs(id, tipo = 'Entrada') {
             </body>
             </html>
         `);
-        printWin.document.close();
+        doc.close();
+
         setTimeout(() => {
-            printWin.focus();
-            printWin.print();
-        }, 500);
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }, 200);
     } catch (err) {
         showToast('Erro ao carregar dados para impressão: ' + err, 'error');
     }
