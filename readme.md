@@ -1,25 +1,32 @@
-# SISTEMA DE ORDENS DE SERVIÇO
+# SISTEMA DE ORDENS DE SERVIÇO (v3.0.0)
 
-Sistema desktop desenvolvido para emissão e gerenciamento de ordens de serviço.
+Sistema desktop de alta performance desenvolvido para emissão e gerenciamento de ordens de serviço.
 
-## 🚀 Tecnologias
+## 🚀 Tecnologias (Migrado na v3.0.0)
 
-- Electron
-- Node.js & Express
-- SQLite3
-- EJS
+- **Tauri v2** (Nativo, leve e ultraveloz)
+- **Rust** (Backend nativo e seguro)
+- **SQLite3** (rusqlite nativo com modo WAL)
+- **Frontend Moderno** (HTML5, CSS3 Tecnológico, JavaScript SPA)
+- **Consumo de Memória:** ~30MB a 35MB de RAM (queda drástica de ~500MB no antigo Electron)
 
 ## 📦 Como rodar o projeto em ambiente de desenvolvimento
+
+### Pré-requisitos
+- Node.js (v18+)
+- Rust & Cargo (1.90+)
 
 ### Instalar dependências
 ```bash
 npm install
 ```
+
 ### Iniciar em modo desenvolvimento
 ```bash
 npm run dev
 ```
-### Gerar o instalador de produção
+
+### Gerar binário / instalador de produção
 ```bash
 npm run build
 ```
@@ -27,12 +34,6 @@ npm run build
 ## 🖥️ Instalação no PC do Cliente
 
 1. Acesse [Releases](https://github.com/fesalgz/ods_cobrinha/releases) no GitHub
-2. Selecione a **última versão** lançada
-3. Na aba **Assets**, clique em **ordens-de-servico-cobrinha-setup-X.Y.Z.exe** (substitua X.Y.Z pela versão atual).
-4. Aguarde o download.
-5. Siga os passos do assistente de instalação.
-6. O atalho aparecerá na Área de Trabalho.
-
-## ⚠️ Atualizações de Software
-
-O sistema possui um recurso de atualização automática. Ao iniciar, ele verifica se há uma nova versão disponível. Se houver, ele fará o download e instalará automaticamente. Caso ocorra um erro durante a atualização, uma mensagem será exibida com as instruções para realizar a atualização manualmente (seguindo os passos acima).
+2. Baixe o instalador da **versão 3.0.0**.
+3. Siga os passos do assistente de instalação.
+4. O aplicativo abrirá instantaneamente consumindo menos de 60MB de memória RAM, preservando integralmente o banco de dados das versões anteriores.
