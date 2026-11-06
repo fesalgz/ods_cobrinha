@@ -68,6 +68,14 @@
             </header>
 
             <div class="content-wrapper">
+                <div id="db-status-banner" style="margin-bottom: 20px; padding: 12px 18px; border-radius: 8px; background: rgba(56, 161, 105, 0.15); border: 1px solid rgba(56, 161, 105, 0.4); display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-database" style="color: #38a169; font-size: 18px;"></i>
+                        <span id="db-status-text">Conectando ao banco SQLite v2.2.0...</span>
+                    </div>
+                    <span id="db-badge" class="badge" style="background: rgba(56, 161, 105, 0.3); color: #38a169; font-size: 11px;">SQLite v2.2.0</span>
+                </div>
+
                 <div class="dashboard-cards">
                     <div class="card stat-card">
                         <div class="card-icon blue"><i class="fas fa-folder-open"></i></div>
@@ -132,6 +140,26 @@
         if (localStorage.getItem('tema_escuro') === '1') {
             document.body.classList.add('dark-theme');
         }
+
+        async function loadDbInfo() {
+            try {
+                if (window.__TAURI__ && window.__TAURI__.core) {
+                    const info = await window.__TAURI__.core.invoke('get_database_info');
+                    const statusText = document.getElementById('db-status-text');
+                    const brandNome = document.getElementById('brand-nome');
+                    if (info.nome_sistema) {
+                        brandNome.textContent = info.nome_sistema;
+                    }
+                    statusText.innerHTML = `<strong>Banco SQLite v2.2.0 Conectado:</strong> ${info.db_path} &bull; <strong>${info.clientes_count}</strong> clientes, <strong>${info.ordens_count}</strong> ordens, <strong>${info.usuarios_count}</strong> usuários preservados com sucesso.`;
+                    document.getElementById('stat-abertas').textContent = info.ordens_count;
+                }
+            } catch (err) {
+                console.error('Erro ao buscar dados do banco:', err);
+                const statusText = document.getElementById('db-status-text');
+                if (statusText) statusText.textContent = 'Erro ao verificar banco: ' + err;
+            }
+        }
+        window.addEventListener('DOMContentLoaded', loadDbInfo);
     </script>
     <script src="js/main.js"></script>
 </body>
