@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema OS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-tools"></i> <span id="brand-nome">Cobrinha Games</span></h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link active">
+                            <i class="fas fa-chart-line" style="width: 20px; text-align: center;"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#clientes" class="nav-link">
+                            <i class="fas fa-users" style="width: 20px; text-align: center;"></i> Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#os" class="nav-link">
+                            <i class="fas fa-clipboard-list" style="width: 20px; text-align: center;"></i> Ordens de Serviço
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#etiquetas" class="nav-link">
+                            <i class="fas fa-tags" style="width: 20px; text-align: center;"></i> Etiquetas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#funcionarios" class="nav-link">
+                            <i class="fas fa-user-tie" style="width: 20px; text-align: center;"></i> Funcionários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#configuracoes" class="nav-link">
+                            <i class="fas fa-cog" style="width: 20px; text-align: center;"></i> Configurações
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h1>Dashboard</h1>
+                <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
+                    <a href="#" onclick="toggleTema(); return false;" title="Alternar Modo Escuro"
+                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
+                        <i class="fas fa-moon"></i>
+                    </a>
+                    <a href="#sistema" title="Configurações do Sistema"
+                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
+                        <i class="fas fa-cogs"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="dashboard-cards">
+                    <div class="card stat-card">
+                        <div class="card-icon blue"><i class="fas fa-folder-open"></i></div>
+                        <div class="card-info">
+                            <h3>OS Abertas/Em Andamento</h3>
+                            <p class="stat-number" id="stat-abertas">0</p>
+                        </div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div class="card-icon green"><i class="fas fa-check-circle"></i></div>
+                        <div class="card-info">
+                            <h3>OS Finalizadas</h3>
+                            <p class="stat-number" id="stat-finalizadas">0</p>
+                        </div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div class="card-icon purple"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="card-info">
+                            <h3>Total Faturado</h3>
+                            <p class="stat-number" id="stat-faturado">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card recent-orders">
+                    <div class="card-header">
+                        <h2>Últimas Ordens de Serviço</h2>
+                        <a href="#os" class="btn btn-sm btn-primary">Ver Todas</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>OS</th>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Status</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-ultimas-ordens">
+                                <tr>
+                                    <td colspan="5" class="text-center">Carregando ordens de serviço...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- Fim de .content-wrapper -->
+        </main> <!-- Fim de .main-content -->
+    </div> <!-- Fim de .app-container -->
+
+    <script>
+        function toggleTema() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('tema_escuro', isDark ? '1' : '0');
+        }
+
+        if (localStorage.getItem('tema_escuro') === '1') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
+
