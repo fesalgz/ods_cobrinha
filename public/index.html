@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema OS</title>
+    <title>Ordens de Serviço - Cobrinha Games</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,6 +12,7 @@
 
 <body>
     <div class="app-container">
+        <!-- BARRA LATERAL -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2><i class="fas fa-tools"></i> <span id="brand-nome">Cobrinha Games</span></h2>
@@ -19,32 +20,27 @@
             <nav class="sidebar-nav">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a href="index.html" class="nav-link active">
+                        <a href="javascript:void(0)" onclick="navigate('dashboard')" id="nav-dashboard" class="nav-link active">
                             <i class="fas fa-chart-line" style="width: 20px; text-align: center;"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#clientes" class="nav-link">
+                        <a href="javascript:void(0)" onclick="navigate('clientes')" id="nav-clientes" class="nav-link">
                             <i class="fas fa-users" style="width: 20px; text-align: center;"></i> Clientes
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#os" class="nav-link">
+                        <a href="javascript:void(0)" onclick="navigate('os')" id="nav-os" class="nav-link">
                             <i class="fas fa-clipboard-list" style="width: 20px; text-align: center;"></i> Ordens de Serviço
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#etiquetas" class="nav-link">
-                            <i class="fas fa-tags" style="width: 20px; text-align: center;"></i> Etiquetas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#funcionarios" class="nav-link">
+                        <a href="javascript:void(0)" onclick="navigate('funcionarios')" id="nav-funcionarios" class="nav-link">
                             <i class="fas fa-user-tie" style="width: 20px; text-align: center;"></i> Funcionários
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#configuracoes" class="nav-link">
+                        <a href="javascript:void(0)" onclick="navigate('configuracoes')" id="nav-configuracoes" class="nav-link">
                             <i class="fas fa-cog" style="width: 20px; text-align: center;"></i> Configurações
                         </a>
                     </li>
@@ -52,117 +48,566 @@
             </nav>
         </aside>
 
+        <!-- CONTEÚDO PRINCIPAL -->
         <main class="main-content">
             <header class="topbar">
-                <h1>Dashboard</h1>
+                <h1 id="topbar-title">Dashboard</h1>
                 <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
-                    <a href="#" onclick="toggleTema(); return false;" title="Alternar Modo Escuro"
-                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
+                    <a href="javascript:void(0)" onclick="alternarTema()" title="Alternar Modo Escuro"
+                        style="color: var(--text-muted); text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
                         <i class="fas fa-moon"></i>
                     </a>
-                    <a href="#sistema" title="Configurações do Sistema"
-                        style="color: #6c757d; text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
+                    <a href="javascript:void(0)" onclick="navigate('sistema')" title="Configurações do Sistema"
+                        style="color: var(--text-muted); text-decoration: none; font-size: 18px; display: flex; align-items: center; transition: color 0.3s;">
                         <i class="fas fa-cogs"></i>
                     </a>
                 </div>
             </header>
 
             <div class="content-wrapper">
-                <div id="db-status-banner" style="margin-bottom: 20px; padding: 12px 18px; border-radius: 8px; background: rgba(56, 161, 105, 0.15); border: 1px solid rgba(56, 161, 105, 0.4); display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
+                <!-- ========================================== -->
+                <!-- SEÇÃO: DASHBOARD                           -->
+                <!-- ========================================== -->
+                <section id="section-dashboard">
+                    <div class="dashboard-cards">
+                        <div class="card stat-card">
+                            <div class="card-icon blue"><i class="fas fa-folder-open"></i></div>
+                            <div class="card-info">
+                                <h3>OS Abertas/Em Andamento</h3>
+                                <p class="stat-number" id="stat-abertas">0</p>
+                            </div>
+                        </div>
+
+                        <div class="card stat-card">
+                            <div class="card-icon green"><i class="fas fa-check-circle"></i></div>
+                            <div class="card-info">
+                                <h3>OS Finalizadas</h3>
+                                <p class="stat-number" id="stat-finalizadas">0</p>
+                            </div>
+                        </div>
+
+                        <div class="card stat-card">
+                            <div class="card-icon purple"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="card-info">
+                                <h3>Total Faturado</h3>
+                                <p class="stat-number" id="stat-faturado">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card recent-orders">
+                        <div class="card-header">
+                            <h2>Últimas Ordens de Serviço</h2>
+                            <button class="btn btn-sm btn-primary" onclick="navigate('os')">Ver Todas</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>OS</th>
+                                        <th>Cliente</th>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-ultimas-ordens">
+                                    <tr><td colspan="5" class="text-center">Carregando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- SEÇÃO: CLIENTES                            -->
+                <!-- ========================================== -->
+                <section id="section-clientes" style="display: none;">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <h2>Gestão de Clientes</h2>
+                            <button class="btn btn-primary" onclick="abrirModalCliente()"><i class="fas fa-user-plus"></i> Novo Cliente</button>
+                        </div>
+                        <div style="padding: 15px 0 5px 0;">
+                            <input type="text" id="input-busca-cliente" class="form-control" placeholder="Buscar por nome ou CPF..." onkeyup="if(event.key==='Enter') loadClientes()">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>CPF</th>
+                                        <th>Telefone</th>
+                                        <th>Observações</th>
+                                        <th style="width: 130px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-clientes-body">
+                                    <tr><td colspan="5" class="text-center">Carregando clientes...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- SEÇÃO: ORDENS DE SERVIÇO                   -->
+                <!-- ========================================== -->
+                <section id="section-os" style="display: none;">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <h2>Ordens de Serviço</h2>
+                            <button class="btn btn-primary" onclick="abrirModalOs()"><i class="fas fa-plus"></i> Nova OS</button>
+                        </div>
+
+                        <!-- Filtros e Busca -->
+                        <div style="display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; align-items: center;">
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-sm btn-secondary" onclick="loadOrdens('')">Todas</button>
+                                <button class="btn btn-sm btn-warning" onclick="loadOrdens('Aberto')">Abertas</button>
+                                <button class="btn btn-sm btn-primary" onclick="loadOrdens('Em andamento')">Em Andamento</button>
+                                <button class="btn btn-sm btn-success" onclick="loadOrdens('Finalizado')">Finalizadas</button>
+                            </div>
+                            <div style="flex: 1; min-width: 250px;">
+                                <input type="text" id="input-busca-os" class="form-control" placeholder="Buscar por cliente ou número da OS..." onkeyup="if(event.key==='Enter') loadOrdens(statusFiltroAtual)">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>OS</th>
+                                        <th>Cliente</th>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                        <th>Aparelho</th>
+                                        <th>Valor</th>
+                                        <th style="width: 150px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-os-body">
+                                    <tr><td colspan="7" class="text-center">Carregando ordens de serviço...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- SEÇÃO: FUNCIONÁRIOS                        -->
+                <!-- ========================================== -->
+                <section id="section-funcionarios" style="display: none;">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>Funcionários / Técnicos</h2>
+                            <button class="btn btn-primary" onclick="abrirModalFuncionario()"><i class="fas fa-plus"></i> Novo Funcionário</button>
+                        </div>
+                        <div class="table-responsive" style="margin-top: 15px;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome Completo</th>
+                                        <th>Nome na OS</th>
+                                        <th>Perfil/Função</th>
+                                        <th style="width: 100px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-funcionarios-body">
+                                    <tr><td colspan="4" class="text-center">Carregando funcionários...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- SEÇÃO: CONFIGURAÇÕES (IDENTIDADE)          -->
+                <!-- ========================================== -->
+                <section id="section-configuracoes" style="display: none;">
+                    <div class="card" style="max-width: 800px; margin: 0 auto;">
+                        <div class="card-header">
+                            <h2>Identidade do Sistema e Comprovante de OS</h2>
+                        </div>
+                        <form onsubmit="salvarIdentidadeForm(event)" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label>Nome da Empresa / Loja</label>
+                                <input type="text" id="conf-empresa-nome" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Endereço Completo</label>
+                                <input type="text" id="conf-empresa-endereco" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Telefone / WhatsApp</label>
+                                <input type="text" id="conf-empresa-telefone" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Termos, Condições e Normas da OS</label>
+                                <textarea id="conf-normas-os" class="form-control" rows="8"></textarea>
+                            </div>
+                            <div style="text-align: right; margin-top: 20px;">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- SEÇÃO: SISTEMA (PAINEL PROTEGIDO)          -->
+                <!-- ========================================== -->
+                <section id="section-sistema" style="display: none;">
+                    <!-- Autenticação -->
+                    <div id="sistema-auth-box" class="card" style="max-width: 450px; margin: 50px auto; text-align: center;">
+                        <i class="fas fa-lock" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
+                        <h2>Acesso Restrito</h2>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Digite a senha mestra para acessar as configurações do sistema.</p>
+                        <form onsubmit="autenticarSistema(event)">
+                            <div class="form-group">
+                                <input type="password" id="sistema-senha-input" class="form-control" placeholder="Senha do painel..." required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Acessar</button>
+                        </form>
+                    </div>
+
+                    <!-- Painel Autorizado -->
+                    <div id="sistema-panel-box" style="display: none; max-width: 800px; margin: 0 auto;">
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <h2>Configurações Globais</h2>
+                            </div>
+                            <form onsubmit="salvarNomeSistema(event)" style="margin-top: 15px;">
+                                <div class="form-group">
+                                    <label>Nome do Sistema (Exibido no Menu Lateral)</label>
+                                    <input type="text" id="sistema-nome-input" class="form-control" required>
+                                </div>
+                                <div style="text-align: right;">
+                                    <button type="submit" class="btn btn-primary btn-sm">Atualizar Nome</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <h2>Segurança do Painel</h2>
+                            </div>
+                            <form onsubmit="alterarSenhaPainel(event)" style="margin-top: 15px;">
+                                <div class="form-group">
+                                    <label>Senha Atual</label>
+                                    <input type="password" id="sistema-senha-atual" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nova Senha</label>
+                                    <input type="password" id="sistema-senha-nova" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Confirmar Nova Senha</label>
+                                    <input type="password" id="sistema-senha-conf" class="form-control" required>
+                                </div>
+                                <div style="text-align: right;">
+                                    <button type="submit" class="btn btn-primary btn-sm">Alterar Senha</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Manutenção do Banco de Dados</h2>
+                            </div>
+                            <p style="margin: 15px 0 10px 0;"><strong>Tamanho Atual do Banco SQLite:</strong> <span id="sistema-db-size">-</span></p>
+                            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                                <button class="btn btn-danger btn-sm" onclick="limparOsSistema()"><i class="fas fa-trash"></i> Limpar Todas as OS</button>
+                                <button class="btn btn-danger btn-sm" onclick="limparClientesSistema()"><i class="fas fa-users-slash"></i> Limpar Todos os Clientes</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAIS DE INTERAÇÃO                        -->
+    <!-- ========================================== -->
+
+    <!-- Modal Cliente -->
+    <div id="modal-cliente" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-cliente-title">Novo Cliente</h3>
+                <button class="modal-close" onclick="fecharModalCliente()">&times;</button>
+            </div>
+            <form onsubmit="salvarClienteForm(event)">
+                <input type="hidden" id="cliente-id">
+                <div class="form-group">
+                    <label>Nome Completo *</label>
+                    <input type="text" id="cliente-nome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>CPF (11 dígitos) *</label>
+                    <input type="text" id="cliente-cpf" class="form-control" placeholder="000.000.000-00" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone / WhatsApp (DDD + 9 dígitos) *</label>
+                    <input type="text" id="cliente-tel" class="form-control" placeholder="(00) 00000-0000" required>
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="cliente-obs" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalCliente()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ordem de Serviço -->
+    <div id="modal-os" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 id="modal-os-title">Ordem de Serviço</h3>
+                <button class="modal-close" onclick="fecharModalOs()">&times;</button>
+            </div>
+            <form onsubmit="salvarOsForm(event)">
+                <input type="hidden" id="os-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Número da OS</label>
+                        <input type="text" id="os-numero" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Abertura</label>
+                        <input type="date" id="os-data-abertura" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Cliente *</label>
+                    <select id="os-cliente-id" class="form-control" required></select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="os-status" class="form-control">
+                            <option value="Aberto">Aberto</option>
+                            <option value="Em andamento">Em andamento</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Atendente / Técnico</label>
+                        <select id="os-funcionario-nome" class="form-control"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Aparelho</label>
+                    <select id="os-selecao-aparelho" class="form-control" onchange="onAparelhoChange()">
+                        <option value="">Selecione o tipo...</option>
+                        <option value="Celular">Celular</option>
+                        <option value="Console">Console</option>
+                        <option value="Controle">Controle</option>
+                        <option value="Computador">Computador</option>
+                        <option value="Notebook">Notebook</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+
+                <div id="container-outro" class="form-group" style="display: none;">
+                    <label>Especifique o Aparelho</label>
+                    <input type="text" id="os-aparelho-outro" class="form-control">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" id="os-aparelho-marca" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo</label>
+                        <input type="text" id="os-aparelho-modelo" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Cor</label>
+                        <input type="text" id="os-aparelho-cor" class="form-control">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Nº de Série</label>
+                        <input type="text" id="os-aparelho-ns" class="form-control">
+                    </div>
+                    <div id="container-imei" class="form-group" style="display: none;">
+                        <label>IMEI</label>
+                        <input type="text" id="os-aparelho-imei" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição do Defeito / Problema</label>
+                    <textarea id="os-descricao-problema" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Observações do Aparelho (Marcas, riscos, etc.)</label>
+                    <textarea id="os-observacoes-aparelho" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="os-is-garantia" style="width: 18px; height: 18px;">
+                        <label for="os-is-garantia" style="margin: 0; cursor: pointer;">Ordem em Garantia</label>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-database" style="color: #38a169; font-size: 18px;"></i>
-                        <span id="db-status-text">Conectando ao banco SQLite v2.2.0...</span>
-                    </div>
-                    <span id="db-badge" class="badge" style="background: rgba(56, 161, 105, 0.3); color: #38a169; font-size: 11px;">SQLite v2.2.0</span>
-                </div>
-
-                <div class="dashboard-cards">
-                    <div class="card stat-card">
-                        <div class="card-icon blue"><i class="fas fa-folder-open"></i></div>
-                        <div class="card-info">
-                            <h3>OS Abertas/Em Andamento</h3>
-                            <p class="stat-number" id="stat-abertas">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card stat-card">
-                        <div class="card-icon green"><i class="fas fa-check-circle"></i></div>
-                        <div class="card-info">
-                            <h3>OS Finalizadas</h3>
-                            <p class="stat-number" id="stat-finalizadas">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card stat-card">
-                        <div class="card-icon purple"><i class="fas fa-dollar-sign"></i></div>
-                        <div class="card-info">
-                            <h3>Total Faturado</h3>
-                            <p class="stat-number" id="stat-faturado">R$ 0,00</p>
-                        </div>
+                        <label style="margin: 0;">Valor (R$):</label>
+                        <input type="number" step="0.01" id="os-valor" class="form-control" style="width: 130px;" value="0">
                     </div>
                 </div>
 
-                <div class="card recent-orders">
-                    <div class="card-header">
-                        <h2>Últimas Ordens de Serviço</h2>
-                        <a href="#os" class="btn btn-sm btn-primary">Ver Todas</a>
+                <div class="modal-footer" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalOs()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Ordem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Finalizar OS -->
+    <div id="modal-finalizar-os" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Finalizar OS #<span id="finalizar-os-numero"></span></h3>
+                <button class="modal-close" onclick="fecharModalFinalizar()">&times;</button>
+            </div>
+            <form onsubmit="salvarFinalizacaoForm(event)">
+                <input type="hidden" id="finalizar-os-id">
+                <div class="form-group">
+                    <label>Motivo da Finalização *</label>
+                    <select id="finalizar-motivo" class="form-control" required>
+                        <option value="">Selecione o motivo...</option>
+                        <option value="Aparelho Consertado">Aparelho Consertado</option>
+                        <option value="Sem Conserto">Sem Conserto</option>
+                        <option value="Orçamento Recusado">Orçamento Recusado</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Justificativa / Detalhes</label>
+                    <textarea id="finalizar-justificativa" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Serviço / Reparo Realizado</label>
+                    <textarea id="finalizar-defeito" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Observações Finais</label>
+                    <textarea id="finalizar-obs" class="form-control" rows="2"></textarea>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="finalizar-garantia" style="width: 18px; height: 18px;">
+                        <label for="finalizar-garantia" style="margin: 0; cursor: pointer;">Garantia</label>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>OS</th>
-                                    <th>Cliente</th>
-                                    <th>Data</th>
-                                    <th>Status</th>
-                                    <th>Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-ultimas-ordens">
-                                <tr>
-                                    <td colspan="5" class="text-center">Carregando ordens de serviço...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="margin: 0;">Valor Final (R$):</label>
+                        <input type="number" step="0.01" id="finalizar-valor" class="form-control" style="width: 130px;" value="0">
                     </div>
                 </div>
-            </div> <!-- Fim de .content-wrapper -->
-        </main> <!-- Fim de .main-content -->
-    </div> <!-- Fim de .app-container -->
+                <div class="modal-footer" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalFinalizar()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Concluir Finalização</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <script>
-        function toggleTema() {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('tema_escuro', isDark ? '1' : '0');
-        }
+    <!-- Modal Funcionário -->
+    <div id="modal-funcionario" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 id="modal-func-title">Funcionário</h3>
+                <button class="modal-close" onclick="fecharModalFuncionario()">&times;</button>
+            </div>
+            <form onsubmit="salvarFuncionarioForm(event)">
+                <input type="hidden" id="func-id">
+                <div class="form-group">
+                    <label>Nome Completo *</label>
+                    <input type="text" id="func-nome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Nome na OS (Como aparecerá na impressão) *</label>
+                    <input type="text" id="func-nome-os" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Função / Perfil</label>
+                    <select id="func-role" class="form-control">
+                        <option value="atendente">Atendente</option>
+                        <option value="tecnico">Técnico</option>
+                        <option value="gerente">Gerente</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalFuncionario()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        if (localStorage.getItem('tema_escuro') === '1') {
-            document.body.classList.add('dark-theme');
+    <style>
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            backdrop-filter: blur(4px);
         }
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-md);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .modal-header h3 { margin: 0; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+    </style>
 
-        async function loadDbInfo() {
-            try {
-                if (window.__TAURI__ && window.__TAURI__.core) {
-                    const info = await window.__TAURI__.core.invoke('get_database_info');
-                    const statusText = document.getElementById('db-status-text');
-                    const brandNome = document.getElementById('brand-nome');
-                    if (info.nome_sistema) {
-                        brandNome.textContent = info.nome_sistema;
-                    }
-                    statusText.innerHTML = `<strong>Banco SQLite v2.2.0 Conectado:</strong> ${info.db_path} &bull; <strong>${info.clientes_count}</strong> clientes, <strong>${info.ordens_count}</strong> ordens, <strong>${info.usuarios_count}</strong> usuários preservados com sucesso.`;
-                    document.getElementById('stat-abertas').textContent = info.ordens_count;
-                }
-            } catch (err) {
-                console.error('Erro ao buscar dados do banco:', err);
-                const statusText = document.getElementById('db-status-text');
-                if (statusText) statusText.textContent = 'Erro ao verificar banco: ' + err;
-            }
-        }
-        window.addEventListener('DOMContentLoaded', loadDbInfo);
-    </script>
+    <script src="js/app.js"></script>
     <script src="js/main.js"></script>
 </body>
 
 </html>
-

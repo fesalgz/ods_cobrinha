@@ -1,4 +1,6 @@
+mod commands;
 mod db;
+mod models;
 
 use std::sync::Mutex;
 
@@ -57,7 +59,34 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            get_database_info
+            get_database_info,
+            commands::get_dashboard_data,
+            commands::listar_clientes,
+            commands::get_cliente,
+            commands::salvar_cliente,
+            commands::atualizar_cliente,
+            commands::excluir_cliente,
+            commands::listar_ordens,
+            commands::get_ordem,
+            commands::salvar_ordem,
+            commands::atualizar_ordem,
+            commands::finalizar_ordem,
+            commands::excluir_ordem,
+            commands::get_dados_impressao,
+            commands::listar_funcionarios,
+            commands::listar_nomes_os,
+            commands::salvar_funcionario,
+            commands::atualizar_funcionario,
+            commands::excluir_funcionario,
+            commands::get_configuracoes,
+            commands::toggle_tema,
+            commands::salvar_identidade,
+            commands::salvar_nome_sistema,
+            commands::verificar_senha_painel,
+            commands::alterar_senha_painel,
+            commands::get_tamanho_banco,
+            commands::limpar_ordens_servico,
+            commands::limpar_todos_clientes,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");
