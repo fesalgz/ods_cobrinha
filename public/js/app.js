@@ -808,7 +808,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
 <style>
   @page {
     size: A4 portrait;
-    margin: 12mm 14mm 10mm 14mm;
+    margin: 10mm 13mm 8mm 13mm;
   }
   * {
     box-sizing: border-box;
@@ -825,7 +825,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
   }
   body {
     padding: 0;
-    line-height: 1.3;
+    line-height: 1.32;
   }
 
   .pagina-os {
@@ -833,7 +833,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 265mm;
+    min-height: 270mm;
     page-break-inside: avoid;
   }
 
@@ -850,14 +850,14 @@ async function imprimirOs(id, tipo = 'Entrada') {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    max-width: 160px;
-    max-height: 65px;
+    max-width: 170px;
+    max-height: 70px;
     display: flex;
     align-items: center;
   }
   .cabecalho-logo img {
-    max-width: 160px;
-    max-height: 65px;
+    max-width: 170px;
+    max-height: 70px;
     object-fit: contain;
   }
   .cabecalho-logo-placeholder {
@@ -865,11 +865,11 @@ async function imprimirOs(id, tipo = 'Entrada') {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 11px;
+    font-size: 11.5px;
     color: #666;
   }
   .empresa-nome {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #111;
     text-transform: uppercase;
@@ -877,7 +877,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
     margin-bottom: 3px;
   }
   .empresa-info {
-    font-size: 12px;
+    font-size: 12.5px;
     color: #222;
     line-height: 1.35;
   }
@@ -885,7 +885,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
   /* ── TÍTULO DA OS ── */
   .titulo-os {
     text-align: center;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
     letter-spacing: 0.4px;
     margin-bottom: 14px;
@@ -898,10 +898,10 @@ async function imprimirOs(id, tipo = 'Entrada') {
     margin-bottom: 14px;
   }
   .meta-entrada {
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 240px 1fr;
   }
   .meta-saida {
-    grid-template-columns: 180px 180px 1fr;
+    grid-template-columns: 190px 190px 1fr;
   }
 
   /* ── SEÇÕES ── */
@@ -909,23 +909,23 @@ async function imprimirOs(id, tipo = 'Entrada') {
     margin-bottom: 12px;
   }
   .secao-titulo {
-    font-size: 13.5px;
+    font-size: 14.5px;
     font-weight: bold;
     color: #111;
-    border-bottom: 1px solid #c5c5c5;
+    border-bottom: 1.2px solid #bbb;
     padding-bottom: 3px;
     margin-bottom: 6px;
   }
 
   /* ── TIPOGRAFIA DOS CAMPOS ── */
   .label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     color: #444;
     margin-bottom: 2px;
   }
   .valor {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: normal;
     color: #111;
   }
@@ -934,15 +934,15 @@ async function imprimirOs(id, tipo = 'Entrada') {
   .grade-3col {
     display: grid;
     grid-template-columns: 2fr 1.3fr 1.3fr;
-    gap: 10px;
+    gap: 12px;
   }
 
   /* ── CAIXAS DE TEXTO ── */
   .caixa-texto {
-    border: 1px solid #bfbfbf;
+    border: 1px solid #b5b5b5;
     border-radius: 4px;
-    padding: 8px 10px;
-    font-size: 11.5px;
+    padding: 9px 12px;
+    font-size: 12.5px;
     color: #111;
     background: #fff;
     margin-top: 3px;
@@ -951,34 +951,34 @@ async function imprimirOs(id, tipo = 'Entrada') {
     word-break: break-word;
   }
   .caixa-entrada-problema {
-    min-height: 60px;
+    min-height: 72px;
   }
   .caixa-entrada-obs {
-    min-height: 92px;
+    min-height: 110px;
   }
   .caixa-saida-problema {
-    min-height: 46px;
+    min-height: 52px;
   }
   .caixa-saida-obs {
-    min-height: 56px;
+    min-height: 68px;
   }
   .caixa-saida-fin {
-    min-height: 50px;
+    min-height: 58px;
   }
 
   /* ── VALOR TOTAL ── */
   .valor-total-linha {
     text-align: right;
-    margin-top: 8px;
+    margin-top: 10px;
     margin-bottom: 6px;
   }
   .valor-total-label {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: bold;
     color: #222;
   }
   .valor-total-num {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: #000;
   }
@@ -988,18 +988,18 @@ async function imprimirOs(id, tipo = 'Entrada') {
     border-top: 1px dotted #888;
     padding-top: 8px;
     margin-top: 6px;
-    margin-bottom: 14px;
+    margin-bottom: 0;
   }
   .normas-titulo {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: bold;
     color: #111;
     margin-bottom: 3px;
   }
   .normas-texto {
-    font-size: 8.5px;
+    font-size: 9px;
     color: #333;
-    line-height: 1.35;
+    line-height: 1.4;
   }
 
   /* ── ASSINATURAS PONTILHADAS ── */
@@ -1007,19 +1007,19 @@ async function imprimirOs(id, tipo = 'Entrada') {
     display: flex;
     justify-content: space-around;
     padding: 0 10px;
-    margin-top: 52px;
-    margin-bottom: 6px;
+    margin-top: 80px;
+    margin-bottom: 8px;
   }
   .assinatura-bloco {
     text-align: center;
-    width: 240px;
+    width: 250px;
   }
   .assinatura-linha-pontilhada {
     border-top: 1.8px dotted #111;
     margin-bottom: 5px;
   }
   .assinatura-rotulo {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     color: #111;
   }
