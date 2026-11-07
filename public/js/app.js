@@ -946,16 +946,6 @@ ${config.normas_os ? `
         showToast('Erro ao carregar dados para impressão: ' + err, 'error');
     }
 }
-        doc.close();
-
-        setTimeout(() => {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-        }, 300);
-    } catch (err) {
-        showToast('Erro ao carregar dados para impressão: ' + err, 'error');
-    }
-}
 
 // --------------------------------------------------------
 // 4. FUNCIONÁRIOS
