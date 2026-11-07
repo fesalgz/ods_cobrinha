@@ -609,10 +609,10 @@ async function imprimirOs(id, tipo = 'Entrada') {
         let corpoDocumento = '';
 
         if (tipo === 'Saída') {
-            // ESTRUTURA SAÍDA
+            // ESTRUTURA SAÍDA (3 colunas perfeitamente alinhadas com cliente e aparelho)
             corpoDocumento = `
-            <!-- 2. Metadados de Controle (3 colunas) -->
-            <div class="meta-grade meta-saida">
+            <!-- 2. Metadados de Controle (3 colunas sincronizadas) -->
+            <div class="grade-3col" style="margin-bottom: 14px;">
                 <div>
                     <div class="label">Data de Abertura:</div>
                     <div class="valor">${formatDate(ordem.data_abertura)}</div>
@@ -693,7 +693,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
                 <div class="secao-titulo">Detalhes da Finalização</div>
                 <div style="margin-bottom: 6px;">
                     <div class="label">Motivo:</div>
-                    <div class="valor" style="font-weight: bold; font-size: 12.5px;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
+                    <div class="valor" style="font-weight: bold; font-size: 13px;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
                 </div>
                 <div class="label">Justificativa / Observações da Finalização:</div>
                 <div class="caixa-texto caixa-saida-fin">${ordem.justificativa_finalizacao || ''}</div>
@@ -706,8 +706,8 @@ async function imprimirOs(id, tipo = 'Entrada') {
         } else {
             // ESTRUTURA ENTRADA
             corpoDocumento = `
-            <!-- 2. Metadados de Controle (2 colunas) -->
-            <div class="meta-grade meta-entrada">
+            <!-- 2. Metadados de Controle (2 colunas perfeitamente alinhadas) -->
+            <div class="meta-entrada" style="margin-bottom: 14px;">
                 <div>
                     <div class="label">Data de Abertura:</div>
                     <div class="valor">${formatDate(ordem.data_abertura)}</div>
@@ -718,7 +718,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
                 </div>
             </div>
 
-            <!-- 3. Dados do Cliente (formato caixa/card) -->
+            <!-- 3. Dados do Cliente -->
             <div class="bloco-secao">
                 <div class="secao-titulo">Dados do Cliente</div>
                 <div class="grade-3col">
@@ -839,34 +839,35 @@ async function imprimirOs(id, tipo = 'Entrada') {
 
   /* ── 1. CABEÇALHO ── */
   .cabecalho-container {
-    text-align: center;
-    position: relative;
-    padding-bottom: 12px;
-    border-bottom: 2.5px solid #111;
-    margin-bottom: 12px;
-  }
-  .cabecalho-logo {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    max-width: 170px;
-    max-height: 70px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 2.5px solid #111;
+    margin-bottom: 14px;
   }
-  .cabecalho-logo img {
-    max-width: 170px;
-    max-height: 70px;
+  .cabecalho-col-logo {
+    width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .cabecalho-col-logo img {
+    max-width: 110px;
+    max-height: 60px;
     object-fit: contain;
   }
-  .cabecalho-logo-placeholder {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 11.5px;
+  .cabecalho-col-logo-placeholder {
+    font-size: 11px;
     color: #666;
+  }
+  .cabecalho-col-centro {
+    flex: 1;
+    text-align: center;
+    padding: 0 6px;
+  }
+  .cabecalho-col-espaco {
+    width: 110px;
   }
   .empresa-nome {
     font-size: 22px;
@@ -877,9 +878,10 @@ async function imprimirOs(id, tipo = 'Entrada') {
     margin-bottom: 3px;
   }
   .empresa-info {
-    font-size: 12.5px;
+    font-size: 11.5px;
     color: #222;
     line-height: 1.35;
+    white-space: nowrap;
   }
 
   /* ── TÍTULO DA OS ── */
@@ -888,25 +890,20 @@ async function imprimirOs(id, tipo = 'Entrada') {
     font-size: 16px;
     font-weight: bold;
     letter-spacing: 0.4px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     color: #111;
   }
 
   /* ── 2. METADADOS ── */
-  .meta-grade {
-    display: grid;
-    margin-bottom: 14px;
-  }
   .meta-entrada {
-    grid-template-columns: 240px 1fr;
-  }
-  .meta-saida {
-    grid-template-columns: 190px 190px 1fr;
+    display: grid;
+    grid-template-columns: 1.35fr 2.15fr;
+    gap: 16px;
   }
 
   /* ── SEÇÕES ── */
   .bloco-secao {
-    margin-bottom: 12px;
+    margin-bottom: 13px;
   }
   .secao-titulo {
     font-size: 14.5px;
@@ -930,11 +927,11 @@ async function imprimirOs(id, tipo = 'Entrada') {
     color: #111;
   }
 
-  /* ── GRADES DE CAMPOS ── */
+  /* ── GRADES DE 3 COLUNAS UNIFICADAS ── */
   .grade-3col {
     display: grid;
-    grid-template-columns: 2fr 1.3fr 1.3fr;
-    gap: 12px;
+    grid-template-columns: 1.35fr 1.15fr 1fr;
+    gap: 16px;
   }
 
   /* ── CAIXAS DE TEXTO ── */
@@ -949,6 +946,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
     margin-bottom: 8px;
     white-space: pre-wrap;
     word-break: break-word;
+    width: 100%;
   }
   .caixa-entrada-problema {
     min-height: 72px;
@@ -1041,10 +1039,13 @@ async function imprimirOs(id, tipo = 'Entrada') {
   <div>
     <!-- 1. CABEÇALHO -->
     <div class="cabecalho-container">
-      ${logoHtml}
-      <div class="empresa-nome">${config.empresa_nome || 'COBRINHA GAMES'}</div>
-      <div class="empresa-info">${config.empresa_endereco || ''}</div>
-      <div class="empresa-info">${telEmpresa}</div>
+      <div class="cabecalho-col-logo">${logoHtml}</div>
+      <div class="cabecalho-col-centro">
+        <div class="empresa-nome">${config.empresa_nome || 'COBRINHA GAMES'}</div>
+        <div class="empresa-info">${config.empresa_endereco || ''}</div>
+        <div class="empresa-info">${telEmpresa}</div>
+      </div>
+      <div class="cabecalho-col-espaco"></div>
     </div>
 
     <!-- TÍTULO DESTACADO -->
