@@ -649,7 +649,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
             <!-- 4. Dados do Aparelho -->
             <div class="bloco-secao">
                 <div class="secao-titulo">Dados do Aparelho</div>
-                <div class="grade-3col" style="margin-bottom: 4px;">
+                <div class="grade-3col" style="margin-bottom: 6px;">
                     <div>
                         <div class="label">Tipo:</div>
                         <div class="valor">${ordem.selecao_aparelho || '-'}</div>
@@ -683,20 +683,20 @@ async function imprimirOs(id, tipo = 'Entrada') {
             <div class="bloco-secao">
                 <div class="secao-titulo">Detalhes do Serviço</div>
                 <div class="label">Problema Relatado:</div>
-                <div class="caixa-texto caixa-curta">${ordem.descricao_problema || ''}</div>
+                <div class="caixa-texto caixa-saida-problema">${ordem.descricao_problema || ''}</div>
                 <div class="label">Estado do Aparelho / Observações:</div>
-                <div class="caixa-texto caixa-curta">${ordem.observacoes_aparelho || ''}</div>
+                <div class="caixa-texto caixa-saida-obs">${ordem.observacoes_aparelho || ''}</div>
             </div>
 
             <!-- 6. Detalhes da Finalização (Exclusivo da OS de Saída) -->
             <div class="bloco-secao">
                 <div class="secao-titulo">Detalhes da Finalização</div>
-                <div style="margin-bottom: 4px;">
+                <div style="margin-bottom: 6px;">
                     <div class="label">Motivo:</div>
-                    <div class="valor" style="font-weight: bold;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
+                    <div class="valor" style="font-weight: bold; font-size: 12.5px;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
                 </div>
                 <div class="label">Justificativa / Observações da Finalização:</div>
-                <div class="caixa-texto caixa-curta">${ordem.justificativa_finalizacao || ''}</div>
+                <div class="caixa-texto caixa-saida-fin">${ordem.justificativa_finalizacao || ''}</div>
                 <div class="valor-total-linha">
                     <span class="valor-total-label">Valor Total:</span>
                     <span class="valor-total-num">${formatMoney(ordem.valor)}</span>
@@ -740,7 +740,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
             <!-- 4. Dados do Aparelho -->
             <div class="bloco-secao">
                 <div class="secao-titulo">Dados do Aparelho</div>
-                <div class="grade-3col" style="margin-bottom: 4px;">
+                <div class="grade-3col" style="margin-bottom: 6px;">
                     <div>
                         <div class="label">Tipo:</div>
                         <div class="valor">${ordem.selecao_aparelho || '-'}</div>
@@ -774,9 +774,9 @@ async function imprimirOs(id, tipo = 'Entrada') {
             <div class="bloco-secao">
                 <div class="secao-titulo">Detalhes do Serviço</div>
                 <div class="label">Problema Relatado:</div>
-                <div class="caixa-texto caixa-media">${ordem.descricao_problema || ''}</div>
+                <div class="caixa-texto caixa-entrada-problema">${ordem.descricao_problema || ''}</div>
                 <div class="label">Estado do Aparelho / Observações:</div>
-                <div class="caixa-texto caixa-grande">${ordem.observacoes_aparelho || ''}</div>
+                <div class="caixa-texto caixa-entrada-obs">${ordem.observacoes_aparelho || ''}</div>
                 <div class="valor-total-linha">
                     <span class="valor-total-label">Valor Total:</span>
                     <span class="valor-total-num">${formatMoney(ordem.valor)}</span>
@@ -808,7 +808,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
 <style>
   @page {
     size: A4 portrait;
-    margin: 10mm 11mm;
+    margin: 12mm 14mm 10mm 14mm;
   }
   * {
     box-sizing: border-box;
@@ -817,7 +817,6 @@ async function imprimirOs(id, tipo = 'Entrada') {
   }
   html, body {
     width: 100%;
-    height: 100%;
     background: #fff;
     color: #111;
     font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
@@ -826,16 +825,15 @@ async function imprimirOs(id, tipo = 'Entrada') {
   }
   body {
     padding: 0;
-    line-height: 1.25;
+    line-height: 1.3;
   }
 
   .pagina-os {
     width: 100%;
-    height: 100%;
-    max-height: 275mm;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-height: 265mm;
     page-break-inside: avoid;
   }
 
@@ -843,23 +841,23 @@ async function imprimirOs(id, tipo = 'Entrada') {
   .cabecalho-container {
     text-align: center;
     position: relative;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #111;
-    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2.5px solid #111;
+    margin-bottom: 12px;
   }
   .cabecalho-logo {
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    max-width: 130px;
-    max-height: 50px;
+    max-width: 160px;
+    max-height: 65px;
     display: flex;
     align-items: center;
   }
   .cabecalho-logo img {
-    max-width: 130px;
-    max-height: 50px;
+    max-width: 160px;
+    max-height: 65px;
     object-fit: contain;
   }
   .cabecalho-logo-placeholder {
@@ -867,67 +865,67 @@ async function imprimirOs(id, tipo = 'Entrada') {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 9px;
+    font-size: 11px;
     color: #666;
   }
   .empresa-nome {
-    font-size: 17px;
+    font-size: 20px;
     font-weight: bold;
     color: #111;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
+    letter-spacing: 0.6px;
+    margin-bottom: 3px;
   }
   .empresa-info {
-    font-size: 9.5px;
-    color: #333;
-    line-height: 1.3;
+    font-size: 12px;
+    color: #222;
+    line-height: 1.35;
   }
 
   /* ── TÍTULO DA OS ── */
   .titulo-os {
     text-align: center;
-    font-size: 12px;
+    font-size: 15px;
     font-weight: bold;
-    letter-spacing: 0.3px;
-    margin-bottom: 8px;
+    letter-spacing: 0.4px;
+    margin-bottom: 14px;
     color: #111;
   }
 
   /* ── 2. METADADOS ── */
   .meta-grade {
     display: grid;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
   }
   .meta-entrada {
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 220px 1fr;
   }
   .meta-saida {
-    grid-template-columns: 150px 150px 1fr;
+    grid-template-columns: 180px 180px 1fr;
   }
 
   /* ── SEÇÕES ── */
   .bloco-secao {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
   .secao-titulo {
-    font-size: 11.5px;
+    font-size: 13.5px;
     font-weight: bold;
     color: #111;
-    border-bottom: 1px solid #d0d0d0;
-    padding-bottom: 2px;
-    margin-bottom: 4px;
+    border-bottom: 1px solid #c5c5c5;
+    padding-bottom: 3px;
+    margin-bottom: 6px;
   }
 
   /* ── TIPOGRAFIA DOS CAMPOS ── */
   .label {
-    font-size: 8.5px;
+    font-size: 10px;
     font-weight: 600;
     color: #444;
-    margin-bottom: 1px;
+    margin-bottom: 2px;
   }
   .valor {
-    font-size: 9.5px;
+    font-size: 12px;
     font-weight: normal;
     color: #111;
   }
@@ -936,66 +934,72 @@ async function imprimirOs(id, tipo = 'Entrada') {
   .grade-3col {
     display: grid;
     grid-template-columns: 2fr 1.3fr 1.3fr;
-    gap: 6px;
+    gap: 10px;
   }
 
   /* ── CAIXAS DE TEXTO ── */
   .caixa-texto {
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    padding: 5px 7px;
-    font-size: 9.5px;
+    border: 1px solid #bfbfbf;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 11.5px;
     color: #111;
     background: #fff;
-    margin-top: 2px;
-    margin-bottom: 5px;
+    margin-top: 3px;
+    margin-bottom: 8px;
     white-space: pre-wrap;
     word-break: break-word;
   }
-  .caixa-curta {
-    min-height: 38px;
+  .caixa-entrada-problema {
+    min-height: 68px;
   }
-  .caixa-media {
-    min-height: 48px;
+  .caixa-entrada-obs {
+    min-height: 105px;
   }
-  .caixa-grande {
+  .caixa-saida-problema {
+    min-height: 52px;
+  }
+  .caixa-saida-obs {
     min-height: 64px;
+  }
+  .caixa-saida-fin {
+    min-height: 58px;
   }
 
   /* ── VALOR TOTAL ── */
   .valor-total-linha {
     text-align: right;
-    margin-top: 6px;
-    margin-bottom: 6px;
+    margin-top: 10px;
+    margin-bottom: 8px;
   }
   .valor-total-label {
-    font-size: 13.5px;
+    font-size: 16px;
     font-weight: bold;
     color: #222;
   }
   .valor-total-num {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: bold;
     color: #000;
   }
 
   /* ── NORMAS IMPORTANTES (RODAPÉ) ── */
   .normas-container {
-    border-top: 1px dotted #999;
-    padding-top: 5px;
-    margin-top: 4px;
-    margin-bottom: 14px;
+    border-top: 1px dotted #888;
+    padding-top: 8px;
+    margin-top: 6px;
+    margin-bottom: 18px;
   }
   .normas-titulo {
-    font-size: 8px;
+    font-size: 10px;
     font-weight: bold;
-    color: #222;
-    margin-bottom: 2px;
+    color: #111;
+    margin-bottom: 3px;
   }
   .normas-texto {
-    font-size: 6.5px;
+    font-size: 8.5px;
     color: #333;
-    line-height: 1.25;
+    line-height: 1.35;
   }
 
   /* ── ASSINATURAS PONTILHADAS ── */
@@ -1003,19 +1007,19 @@ async function imprimirOs(id, tipo = 'Entrada') {
     display: flex;
     justify-content: space-around;
     padding: 0 10px;
-    margin-top: 10px;
-    margin-bottom: 2px;
+    margin-top: 24px;
+    margin-bottom: 4px;
   }
   .assinatura-bloco {
     text-align: center;
-    width: 210px;
+    width: 240px;
   }
   .assinatura-linha-pontilhada {
-    border-top: 1.5px dotted #111;
-    margin-bottom: 3px;
+    border-top: 1.8px dotted #111;
+    margin-bottom: 4px;
   }
   .assinatura-rotulo {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: bold;
     color: #111;
   }
@@ -1023,8 +1027,10 @@ async function imprimirOs(id, tipo = 'Entrada') {
   @media print {
     html, body {
       height: 100%;
-      overflow: hidden;
       page-break-after: avoid;
+    }
+    .pagina-os {
+      min-height: auto;
     }
   }
 </style>
