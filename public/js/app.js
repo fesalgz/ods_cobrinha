@@ -951,26 +951,26 @@ async function imprimirOs(id, tipo = 'Entrada') {
     word-break: break-word;
   }
   .caixa-entrada-problema {
-    min-height: 68px;
+    min-height: 60px;
   }
   .caixa-entrada-obs {
-    min-height: 105px;
+    min-height: 92px;
   }
   .caixa-saida-problema {
-    min-height: 52px;
+    min-height: 46px;
   }
   .caixa-saida-obs {
-    min-height: 64px;
+    min-height: 56px;
   }
   .caixa-saida-fin {
-    min-height: 58px;
+    min-height: 50px;
   }
 
   /* ── VALOR TOTAL ── */
   .valor-total-linha {
     text-align: right;
-    margin-top: 10px;
-    margin-bottom: 8px;
+    margin-top: 8px;
+    margin-bottom: 6px;
   }
   .valor-total-label {
     font-size: 16px;
@@ -988,7 +988,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
     border-top: 1px dotted #888;
     padding-top: 8px;
     margin-top: 6px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   .normas-titulo {
     font-size: 10px;
@@ -1007,8 +1007,8 @@ async function imprimirOs(id, tipo = 'Entrada') {
     display: flex;
     justify-content: space-around;
     padding: 0 10px;
-    margin-top: 24px;
-    margin-bottom: 4px;
+    margin-top: 52px;
+    margin-bottom: 6px;
   }
   .assinatura-bloco {
     text-align: center;
@@ -1016,7 +1016,7 @@ async function imprimirOs(id, tipo = 'Entrada') {
   }
   .assinatura-linha-pontilhada {
     border-top: 1.8px dotted #111;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
   }
   .assinatura-rotulo {
     font-size: 12px;
