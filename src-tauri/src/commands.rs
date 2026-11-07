@@ -885,6 +885,111 @@ pub fn salvar_identidade(
     Ok(())
 }
 
+fn base64_decode(input: &str) -> Option<Vec<u8>> {
+    let mut table = [0xFFu8; 256];
+    const CHARSET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for (i, &b) in CHARSET.iter().enumerate() {
+        table[b as usize] = i as u8;
+    }
+
+    let clean: Vec<u8> = input.bytes().filter(|&b| !b.is_ascii_whitespace()).collect();
+    if clean.is_empty() || clean.len() % 4 != 0 {
+        return None;
+    }
+
+    let mut out = Vec::with_capacity(clean.len() * 3 / 4);
+    for chunk in clean.chunks(4) {
+        let b0 = table[chunk[0] as usize];
+        let b1 = table[chunk[1] as usize];
+        if b0 == 0xFF || b1 == 0xFF {
+            return None;
+        }
+
+        let b2 = if chunk[2] == b'=' { 0 } else { table[chunk[2] as usize] };
+        let b3 = if chunk[3] == b'=' { 0 } else { table[chunk[3] as usize] };
+        if (chunk[2] != b'=' && b2 == 0xFF) || (chunk[3] != b'=' && b3 == 0xFF) {
+            return None;
+        }
+
+        out.push((b0 << 2) | (b1 >> 4));
+        if chunk[2] != b'=' {
+            out.push((b1 << 4) | (b2 >> 2));
+        }
+        if chunk[3] != b'=' {
+            out.push((b2 << 6) | b3);
+        }
+    }
+    Some(out)
+}
+
+#[tauri::command]
+pub fn salvar_logo(
+    base64_data: String,
+    extensao: String,
+    state: tauri::State<DatabaseState>,
+) -> Result<String, String> {
+    let clean_b64 = if let Some(idx) = base64_data.find(',') {
+        &base64_data[idx + 1..]
+    } else {
+        &base64_data
+    };
+
+    let bytes = match base64_decode(clean_b64) {
+        Some(b) => b,
+        None => return Err("Falha ao decodificar arquivo de imagem.".into()),
+    };
+
+    let ext = match extensao.to_lowercase().as_str() {
+        "jpg" | "jpeg" => "jpg",
+        "webp" => "webp",
+        "svg" => "svg",
+        _ => "png",
+    };
+
+    let millis = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis();
+    let filename = format!("logo-{}.{}", millis, ext);
+
+    let uploads_dir = if let Some(roaming) = dirs::data_dir() {
+        roaming.join("ordens-de-servico-cobrinha").join("uploads")
+    } else if let Some(parent) = state.path.parent().and_then(|p| p.parent()) {
+        parent.join("uploads")
+    } else {
+        std::path::PathBuf::from("uploads")
+    };
+
+    let _ = std::fs::create_dir_all(&uploads_dir);
+    let target_file = uploads_dir.join(&filename);
+    std::fs::write(&target_file, &bytes).map_err(|e| format!("Erro ao gravar logo: {}", e))?;
+
+    let db_path_str = format!("/uploads/{}", filename);
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    conn.execute(
+        "UPDATE configuracoes SET logo_path = ? WHERE id = 1",
+        [&db_path_str],
+    )
+    .map_err(|e| e.to_string())?;
+
+    Ok(db_path_str)
+}
+
+#[tauri::command]
+pub fn remover_logo(state: tauri::State<DatabaseState>) -> Result<(), String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    conn.execute("UPDATE configuracoes SET logo_path = NULL WHERE id = 1", [])
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_logo_base64(state: tauri::State<DatabaseState>) -> Result<Option<String>, String> {
+    let config = get_configuracoes(state.clone())?;
+    let logo_base64 = resolver_logo_base64(&config.logo_path, &state.path);
+    Ok(logo_base64)
+}
+
 #[tauri::command]
 pub fn salvar_nome_sistema(
     nome_sistema: String,

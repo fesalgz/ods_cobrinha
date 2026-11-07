@@ -561,59 +561,229 @@ async function imprimirOs(id, tipo = 'Entrada') {
         // Logo da empresa: usa Base64 direto ou fallback
         let logoHtml = '';
         if (logo_base64) {
-            logoHtml = `<img src="${logo_base64}" alt="Logo da Empresa" style="max-height: 55px; max-width: 160px; object-fit: contain;" />`;
+            logoHtml = `<div class="cabecalho-logo"><img src="${logo_base64}" alt="Logo da Empresa" /></div>`;
         } else {
-            logoHtml = `<div style="font-size: 11px; color: #555; display: inline-flex; align-items: center; gap: 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> Logo da Empresa</div>`;
+            logoHtml = `<div class="cabecalho-logo-placeholder">Logo da Empresa</div>`;
         }
 
-        // Metadados (Abertura / Entrega / Funcionário)
-        let metaHtml = '';
-        if (tipo === 'Saída') {
-            metaHtml = `
-            <div class="meta-grid meta-grid-saida">
-                <div>
-                    <div class="campo-rotulo">Data de Abertura:</div>
-                    <div class="campo-conteudo">${formatDate(ordem.data_abertura)}</div>
-                </div>
-                <div>
-                    <div class="campo-rotulo">Data de Entrega:</div>
-                    <div class="campo-conteudo">${formatDate(ordem.data_entrega || ordem.data_abertura)}</div>
-                </div>
-                <div>
-                    <div class="campo-rotulo">Funcionário:</div>
-                    <div class="campo-conteudo">${ordem.funcionario_nome || '-'}</div>
-                </div>
-            </div>`;
-        } else {
-            metaHtml = `
-            <div class="meta-grid meta-grid-entrada">
-                <div>
-                    <div class="campo-rotulo">Data de Abertura:</div>
-                    <div class="campo-conteudo">${formatDate(ordem.data_abertura)}</div>
-                </div>
-                <div>
-                    <div class="campo-rotulo">Funcionário:</div>
-                    <div class="campo-conteudo">${ordem.funcionario_nome || '-'}</div>
-                </div>
-            </div>`;
-        }
-
-        // Seção Detalhes da Finalização (somente na Saída)
-        const finalizacaoHtml = tipo === 'Saída' ? `
-            <div class="secao">
-                <div class="secao-titulo">Detalhes da Finalização</div>
-                <div style="margin-bottom: 8px;">
-                    <div class="campo-rotulo">Motivo:</div>
-                    <div class="campo-conteudo" style="font-weight: bold;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
-                </div>
-                <div class="campo-rotulo">Justificativa / Observações da Finalização:</div>
-                <div class="caixa-texto caixa-finalizacao">${ordem.justificativa_finalizacao || ''}</div>
-            </div>` : '';
-
-        // Formatação do telefone da empresa
+        // Telefone formatado
         const telEmpresa = config.empresa_telefone 
             ? (config.empresa_telefone.toLowerCase().includes('telefone') ? config.empresa_telefone : `Telefone: ${config.empresa_telefone}`)
             : '';
+
+        // Normas: 8 cláusulas padrão se não cadastrado
+        let normasHtml = '';
+        const textoNormas = (config.normas_os && config.normas_os.trim().length > 0)
+            ? config.normas_os.split('\n').filter(l => l.trim()).join('<br>')
+            : [
+                "1. O prazo para elaboração do orçamento é de 5 à 15 dias úteis;",
+                "2. Não nos responsabilizamos por perda de dados, armazenamentos, agenda, jogos, músicas e etc.;",
+                "3. O prazo de retirada do aparelho é de até 30 dias, após esse prazo será cobrado uma taxa diária de R$1,00 pelo armazenamento;",
+                "4. Caso outra pessoa venha retirar o aparelho, será obrigatório a apresentação da OS com autorização prévia;",
+                "5. Garantia de 90 dias para todos os tipos de consertos;",
+                "6. Horário de funcionamento de Segunda a Sábado 10h00 às 22h00, Domingo 13h00 as 20h00;",
+                "7. Não sendo retirado o aparelho em até 90 dias, tal fato será considerado como abandono;",
+                "8. Os aparelhos dado como abandono, serão vendidos pelo valor do serviço contratado."
+            ].join('<br>');
+
+        normasHtml = `
+        <div class="normas-container">
+            <div class="normas-titulo">Normas Importantes:</div>
+            <div class="normas-texto">${textoNormas}</div>
+        </div>`;
+
+        // Assinaturas pontilhadas
+        const assinaturasHtml = `
+        <div class="assinaturas-container">
+            <div class="assinatura-bloco">
+                <div class="assinatura-linha-pontilhada"></div>
+                <div class="assinatura-rotulo">Assinatura do Atendente</div>
+            </div>
+            <div class="assinatura-bloco">
+                <div class="assinatura-linha-pontilhada"></div>
+                <div class="assinatura-rotulo">Assinatura do Cliente</div>
+            </div>
+        </div>`;
+
+        // Conteúdo condicional de Entrada vs Saída
+        let corpoDocumento = '';
+
+        if (tipo === 'Saída') {
+            // ESTRUTURA SAÍDA
+            corpoDocumento = `
+            <!-- 2. Metadados de Controle (3 colunas) -->
+            <div class="meta-grade meta-saida">
+                <div>
+                    <div class="label">Data de Abertura:</div>
+                    <div class="valor">${formatDate(ordem.data_abertura)}</div>
+                </div>
+                <div>
+                    <div class="label">Data de Entrega:</div>
+                    <div class="valor">${formatDate(ordem.data_entrega || ordem.data_abertura)}</div>
+                </div>
+                <div>
+                    <div class="label">Funcionário:</div>
+                    <div class="valor">${ordem.funcionario_nome || '-'}</div>
+                </div>
+            </div>
+
+            <!-- 3. Dados do Cliente -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Dados do Cliente</div>
+                <div class="grade-3col">
+                    <div>
+                        <div class="label">Nome:</div>
+                        <div class="valor">${ordem.cliente_nome || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Telefone:</div>
+                        <div class="valor">${maskTel(ordem.cliente_telefone) || 'Não informado'}</div>
+                    </div>
+                    <div>
+                        <div class="label">CPF/CNPJ:</div>
+                        <div class="valor">${maskCPF(ordem.cliente_cpf) || '-'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Dados do Aparelho -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Dados do Aparelho</div>
+                <div class="grade-3col" style="margin-bottom: 4px;">
+                    <div>
+                        <div class="label">Tipo:</div>
+                        <div class="valor">${ordem.selecao_aparelho || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Marca:</div>
+                        <div class="valor">${ordem.aparelho_marca || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Modelo:</div>
+                        <div class="valor">${ordem.aparelho_modelo || '-'}</div>
+                    </div>
+                </div>
+                <div class="grade-3col">
+                    <div>
+                        <div class="label">Cor:</div>
+                        <div class="valor">${ordem.aparelho_cor || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Número de Série:</div>
+                        <div class="valor">${ordem.aparelho_ns || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">IMEI:</div>
+                        <div class="valor">${ordem.aparelho_imei || '-'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Detalhes do Serviço -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Detalhes do Serviço</div>
+                <div class="label">Problema Relatado:</div>
+                <div class="caixa-texto caixa-curta">${ordem.descricao_problema || ''}</div>
+                <div class="label">Estado do Aparelho / Observações:</div>
+                <div class="caixa-texto caixa-curta">${ordem.observacoes_aparelho || ''}</div>
+            </div>
+
+            <!-- 6. Detalhes da Finalização (Exclusivo da OS de Saída) -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Detalhes da Finalização</div>
+                <div style="margin-bottom: 4px;">
+                    <div class="label">Motivo:</div>
+                    <div class="valor" style="font-weight: bold;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
+                </div>
+                <div class="label">Justificativa / Observações da Finalização:</div>
+                <div class="caixa-texto caixa-curta">${ordem.justificativa_finalizacao || ''}</div>
+                <div class="valor-total-linha">
+                    <span class="valor-total-label">Valor Total:</span>
+                    <span class="valor-total-num">${formatMoney(ordem.valor)}</span>
+                </div>
+            </div>
+            `;
+        } else {
+            // ESTRUTURA ENTRADA
+            corpoDocumento = `
+            <!-- 2. Metadados de Controle (2 colunas) -->
+            <div class="meta-grade meta-entrada">
+                <div>
+                    <div class="label">Data de Abertura:</div>
+                    <div class="valor">${formatDate(ordem.data_abertura)}</div>
+                </div>
+                <div>
+                    <div class="label">Funcionário:</div>
+                    <div class="valor">${ordem.funcionario_nome || '-'}</div>
+                </div>
+            </div>
+
+            <!-- 3. Dados do Cliente (formato caixa/card) -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Dados do Cliente</div>
+                <div class="grade-3col">
+                    <div>
+                        <div class="label">Nome:</div>
+                        <div class="valor">${ordem.cliente_nome || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Telefone:</div>
+                        <div class="valor">${maskTel(ordem.cliente_telefone) || 'Não informado'}</div>
+                    </div>
+                    <div>
+                        <div class="label">CPF/CNPJ:</div>
+                        <div class="valor">${maskCPF(ordem.cliente_cpf) || '-'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Dados do Aparelho -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Dados do Aparelho</div>
+                <div class="grade-3col" style="margin-bottom: 4px;">
+                    <div>
+                        <div class="label">Tipo:</div>
+                        <div class="valor">${ordem.selecao_aparelho || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Marca:</div>
+                        <div class="valor">${ordem.aparelho_marca || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Modelo:</div>
+                        <div class="valor">${ordem.aparelho_modelo || '-'}</div>
+                    </div>
+                </div>
+                <div class="grade-3col">
+                    <div>
+                        <div class="label">Cor:</div>
+                        <div class="valor">${ordem.aparelho_cor || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Número de Série:</div>
+                        <div class="valor">${ordem.aparelho_ns || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="label">IMEI:</div>
+                        <div class="valor">${ordem.aparelho_imei || '-'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Detalhes do Serviço -->
+            <div class="bloco-secao">
+                <div class="secao-titulo">Detalhes do Serviço</div>
+                <div class="label">Problema Relatado:</div>
+                <div class="caixa-texto caixa-media">${ordem.descricao_problema || ''}</div>
+                <div class="label">Estado do Aparelho / Observações:</div>
+                <div class="caixa-texto caixa-grande">${ordem.observacoes_aparelho || ''}</div>
+                <div class="valor-total-linha">
+                    <span class="valor-total-label">Valor Total:</span>
+                    <span class="valor-total-num">${formatMoney(ordem.valor)}</span>
+                </div>
+            </div>
+            `;
+        }
 
         let iframe = document.getElementById('print-iframe');
         if (!iframe) {
@@ -637,300 +807,251 @@ async function imprimirOs(id, tipo = 'Entrada') {
 <title>OS ${ordem.numero_os} - ${tipo}</title>
 <style>
   @page {
-    size: A4;
-    margin: 14mm 12mm;
+    size: A4 portrait;
+    margin: 10mm 11mm;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    color: #222;
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
     background: #fff;
-    padding: 22px 28px;
-    line-height: 1.3;
+    color: #111;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body {
+    padding: 0;
+    line-height: 1.25;
   }
 
-  /* ── CABEÇALHO ── */
-  .cabecalho {
+  .pagina-os {
+    width: 100%;
+    height: 100%;
+    max-height: 275mm;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
-    padding-bottom: 12px;
+    page-break-inside: avoid;
+  }
+
+  /* ── 1. CABEÇALHO ── */
+  .cabecalho-container {
+    text-align: center;
+    position: relative;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #111;
+    margin-bottom: 8px;
   }
   .cabecalho-logo {
-    flex: 0 0 160px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 130px;
+    max-height: 50px;
+    display: flex;
+    align-items: center;
   }
-  .cabecalho-info {
-    flex: 1;
-    text-align: center;
-    padding-right: 60px;
+  .cabecalho-logo img {
+    max-width: 130px;
+    max-height: 50px;
+    object-fit: contain;
   }
-  .cabecalho-info h1 {
-    font-size: 15px;
+  .cabecalho-logo-placeholder {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    color: #666;
+  }
+  .empresa-nome {
+    font-size: 17px;
     font-weight: bold;
     color: #111;
-    letter-spacing: 0.5px;
-    margin-bottom: 3px;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
   }
-  .cabecalho-info p {
-    font-size: 11px;
+  .empresa-info {
+    font-size: 9.5px;
     color: #333;
-    margin-top: 2px;
-  }
-  .linha-cabecalho {
-    border: none;
-    border-top: 2.5px solid #111;
-    margin-bottom: 14px;
+    line-height: 1.3;
   }
 
   /* ── TÍTULO DA OS ── */
   .titulo-os {
     text-align: center;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
-    color: #111;
     letter-spacing: 0.3px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    color: #111;
   }
 
-  /* ── METADADOS (DATA / FUNCIONÁRIO) ── */
-  .meta-grid {
+  /* ── 2. METADADOS ── */
+  .meta-grade {
     display: grid;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
-  .meta-grid-entrada {
-    grid-template-columns: 200px 1fr;
+  .meta-entrada {
+    grid-template-columns: 180px 1fr;
   }
-  .meta-grid-saida {
-    grid-template-columns: 200px 200px 1fr;
+  .meta-saida {
+    grid-template-columns: 150px 150px 1fr;
   }
 
   /* ── SEÇÕES ── */
-  .secao {
-    margin-bottom: 14px;
+  .bloco-secao {
+    margin-bottom: 8px;
   }
   .secao-titulo {
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: bold;
     color: #111;
-    border-bottom: 1px solid #d5d5d5;
-    padding-bottom: 3px;
-    margin-bottom: 7px;
+    border-bottom: 1px solid #d0d0d0;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
   }
 
-  /* ── GRIDS DE CAMPOS ── */
-  .campos-grid-3 {
-    display: grid;
-    grid-template-columns: 2fr 1.5fr 1.5fr;
-    gap: 8px;
-  }
-  .campos-grid-aparelho {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .campo-rotulo {
-    font-size: 10px;
+  /* ── TIPOGRAFIA DOS CAMPOS ── */
+  .label {
+    font-size: 8.5px;
+    font-weight: 600;
     color: #444;
     margin-bottom: 1px;
   }
-  .campo-conteudo {
-    font-size: 11.5px;
+  .valor {
+    font-size: 9.5px;
+    font-weight: normal;
     color: #111;
+  }
+
+  /* ── GRADES DE CAMPOS ── */
+  .grade-3col {
+    display: grid;
+    grid-template-columns: 2fr 1.3fr 1.3fr;
+    gap: 6px;
   }
 
   /* ── CAIXAS DE TEXTO ── */
   .caixa-texto {
-    border: 1px solid #cfcfcf;
-    border-radius: 4px;
-    padding: 7px 9px;
-    font-size: 11px;
-    color: #222;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 5px 7px;
+    font-size: 9.5px;
+    color: #111;
     background: #fff;
     margin-top: 2px;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     white-space: pre-wrap;
     word-break: break-word;
   }
-  .caixa-problema {
-    min-height: 52px;
+  .caixa-curta {
+    min-height: 38px;
   }
-  .caixa-observacoes {
-    min-height: 72px;
-  }
-  .caixa-finalizacao {
+  .caixa-media {
     min-height: 48px;
+  }
+  .caixa-grande {
+    min-height: 64px;
   }
 
   /* ── VALOR TOTAL ── */
-  .valor-container {
+  .valor-total-linha {
     text-align: right;
-    margin-top: 10px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+  .valor-total-label {
+    font-size: 13.5px;
+    font-weight: bold;
+    color: #222;
+  }
+  .valor-total-num {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+  }
+
+  /* ── NORMAS IMPORTANTES (RODAPÉ) ── */
+  .normas-container {
+    border-top: 1px dotted #999;
+    padding-top: 5px;
+    margin-top: 4px;
     margin-bottom: 14px;
   }
-  .valor-label {
-    font-size: 15px;
-    font-weight: bold;
-    color: #333;
-  }
-  .valor-destaque {
-    font-size: 17px;
-    font-weight: bold;
-    color: #111;
-  }
-
-  /* ── NORMAS IMPORTANTES ── */
-  .normas-container {
-    border-top: 1px dotted #bbb;
-    padding-top: 8px;
-    margin-bottom: 24px;
-  }
   .normas-titulo {
-    font-size: 10px;
+    font-size: 8px;
     font-weight: bold;
-    color: #333;
-    margin-bottom: 3px;
+    color: #222;
+    margin-bottom: 2px;
   }
   .normas-texto {
-    font-size: 9px;
+    font-size: 6.5px;
     color: #333;
-    line-height: 1.38;
+    line-height: 1.25;
   }
 
-  /* ── ASSINATURAS ── */
+  /* ── ASSINATURAS PONTILHADAS ── */
   .assinaturas-container {
     display: flex;
     justify-content: space-around;
-    margin-top: 32px;
     padding: 0 10px;
+    margin-top: 10px;
+    margin-bottom: 2px;
   }
   .assinatura-bloco {
     text-align: center;
-    width: 240px;
+    width: 210px;
   }
-  .assinatura-linha {
-    border-top: 1.8px solid #111;
-    margin-bottom: 4px;
+  .assinatura-linha-pontilhada {
+    border-top: 1.5px dotted #111;
+    margin-bottom: 3px;
   }
   .assinatura-rotulo {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
     color: #111;
   }
 
   @media print {
-    body {
-      padding: 0;
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      page-break-after: avoid;
     }
   }
 </style>
 </head>
 <body>
 
-<!-- CABEÇALHO -->
-<div class="cabecalho">
-  <div class="cabecalho-logo">${logoHtml}</div>
-  <div class="cabecalho-info">
-    <h1>${config.empresa_nome || 'COBRINHA GAMES'}</h1>
-    <p>${config.empresa_endereco || ''}</p>
-    <p>${telEmpresa}</p>
+<div class="pagina-os">
+  <div>
+    <!-- 1. CABEÇALHO -->
+    <div class="cabecalho-container">
+      ${logoHtml}
+      <div class="empresa-nome">${config.empresa_nome || 'COBRINHA GAMES'}</div>
+      <div class="empresa-info">${config.empresa_endereco || ''}</div>
+      <div class="empresa-info">${telEmpresa}</div>
+    </div>
+
+    <!-- TÍTULO DESTACADO -->
+    <div class="titulo-os">ORDEM DE SERVIÇO (${tipo.toUpperCase()}) Nº ${ordem.numero_os}</div>
+
+    <!-- BLOCOS ESPECÍFICOS DE ENTRADA / SAÍDA -->
+    ${corpoDocumento}
   </div>
-</div>
-<hr class="linha-cabecalho">
 
-<!-- TÍTULO DA ORDEM -->
-<div class="titulo-os">ORDEM DE SERVIÇO (${tipo.toUpperCase()}) Nº ${ordem.numero_os}</div>
-
-<!-- METADADOS -->
-${metaHtml}
-
-<!-- DADOS DO CLIENTE -->
-<div class="secao">
-  <div class="secao-titulo">Dados do Cliente</div>
-  <div class="campos-grid-3">
-    <div>
-      <div class="campo-rotulo">Nome:</div>
-      <div class="campo-conteudo">${ordem.cliente_nome || '-'}</div>
-    </div>
-    <div>
-      <div class="campo-rotulo">Telefone:</div>
-      <div class="campo-conteudo">${maskTel(ordem.cliente_telefone) || 'Não informado'}</div>
-    </div>
-    <div>
-      <div class="campo-rotulo">CPF/CNPJ:</div>
-      <div class="campo-conteudo">${maskCPF(ordem.cliente_cpf) || '-'}</div>
-    </div>
-  </div>
-</div>
-
-<!-- DADOS DO APARELHO -->
-<div class="secao">
-  <div class="secao-titulo">Dados do Aparelho</div>
-  <div class="campos-grid-aparelho">
-    <div>
-      <div class="campo-rotulo">Tipo:</div>
-      <div class="campo-conteudo">${ordem.selecao_aparelho || '-'}</div>
-    </div>
-    <div>
-      <div class="campo-rotulo">Marca:</div>
-      <div class="campo-conteudo">${ordem.aparelho_marca || '-'}</div>
-    </div>
-    <div>
-      <div class="campo-rotulo">Modelo:</div>
-      <div class="campo-conteudo">${ordem.aparelho_modelo || '-'}</div>
-    </div>
-  </div>
-  <div class="campos-grid-aparelho">
-    <div>
-      <div class="campo-rotulo">Cor:</div>
-      <div class="campo-conteudo">${ordem.aparelho_cor || '-'}</div>
-    </div>
-    <div>
-      <div class="campo-rotulo">Número de Série:</div>
-      <div class="campo-conteudo">${ordem.aparelho_ns || '-'}</div>
-    </div>
-    <div>
-      <div class="campo-rotulo">IMEI:</div>
-      <div class="campo-conteudo">${ordem.aparelho_imei || '-'}</div>
-    </div>
-  </div>
-</div>
-
-<!-- DETALHES DO SERVIÇO -->
-<div class="secao">
-  <div class="secao-titulo">Detalhes do Serviço</div>
-  <div class="campo-rotulo">Problema Relatado:</div>
-  <div class="caixa-texto caixa-problema">${ordem.descricao_problema || ''}</div>
-  <div class="campo-rotulo">Estado do Aparelho / Observações:</div>
-  <div class="caixa-texto caixa-observacoes">${ordem.observacoes_aparelho || ''}</div>
-</div>
-
-<!-- DETALHES DA FINALIZAÇÃO (SE SAÍDA) -->
-${finalizacaoHtml}
-
-<!-- VALOR TOTAL -->
-<div class="valor-container">
-  <span class="valor-label">Valor Total:</span> <span class="valor-destaque">${formatMoney(ordem.valor)}</span>
-</div>
-
-<!-- NORMAS IMPORTANTES -->
-${config.normas_os ? `
-<div class="normas-container">
-  <div class="normas-titulo">Normas Importantes:</div>
-  <div class="normas-texto">${config.normas_os.split('\n').filter(l => l.trim()).join('<br>')}</div>
-</div>` : ''}
-
-<!-- ASSINATURAS -->
-<div class="assinaturas-container">
-  <div class="assinatura-bloco">
-    <div class="assinatura-linha"></div>
-    <div class="assinatura-rotulo">Assinatura do Atendente</div>
-  </div>
-  <div class="assinatura-bloco">
-    <div class="assinatura-linha"></div>
-    <div class="assinatura-rotulo">Assinatura do Cliente</div>
+  <div>
+    <!-- 6/7. RODAPÉ (NORMAS E ASSINATURAS) -->
+    ${normasHtml}
+    ${assinaturasHtml}
   </div>
 </div>
 
@@ -1027,6 +1148,58 @@ async function excluirFuncionario(id) {
 // --------------------------------------------------------
 // 5. CONFIGURAÇÕES (IDENTIDADE)
 // --------------------------------------------------------
+let logoFileSelected = null;
+
+function onLogoSelected(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        showToast('Por favor, selecione um arquivo de imagem válido (PNG, JPG, SVG, WEBP).', 'warning');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        logoFileSelected = {
+            base64Data: evt.target.result,
+            extensao: file.name.split('.').pop() || 'png'
+        };
+        const img = document.getElementById('conf-logo-preview');
+        const placeholder = document.getElementById('conf-logo-placeholder');
+        const btnRemover = document.getElementById('btn-remover-logo');
+        if (img) {
+            img.src = evt.target.result;
+            img.style.display = 'block';
+        }
+        if (placeholder) placeholder.style.display = 'none';
+        if (btnRemover) btnRemover.style.display = 'inline-block';
+    };
+    reader.readAsDataURL(file);
+}
+
+async function removerLogoClick() {
+    if (!confirm('Deseja realmente remover o logotipo da empresa?')) return;
+    try {
+        await invoke('remover_logo');
+        logoFileSelected = null;
+        const img = document.getElementById('conf-logo-preview');
+        const placeholder = document.getElementById('conf-logo-placeholder');
+        const btnRemover = document.getElementById('btn-remover-logo');
+        const input = document.getElementById('conf-logo-input');
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+        if (placeholder) placeholder.style.display = 'block';
+        if (btnRemover) btnRemover.style.display = 'none';
+        if (input) input.value = '';
+        showToast('Logotipo removido com sucesso!', 'success');
+    } catch (err) {
+        showToast('Erro ao remover logotipo: ' + err, 'error');
+    }
+}
+
 async function loadConfiguracoes() {
     try {
         const config = await invoke('get_configuracoes');
@@ -1034,6 +1207,33 @@ async function loadConfiguracoes() {
         document.getElementById('conf-empresa-endereco').value = config.empresa_endereco || '';
         document.getElementById('conf-empresa-telefone').value = config.empresa_telefone || '';
         document.getElementById('conf-normas-os').value = config.normas_os || '';
+
+        // Carrega prévia do logotipo atual
+        logoFileSelected = null;
+        const img = document.getElementById('conf-logo-preview');
+        const placeholder = document.getElementById('conf-logo-placeholder');
+        const btnRemover = document.getElementById('btn-remover-logo');
+        const input = document.getElementById('conf-logo-input');
+        if (input) input.value = '';
+
+        try {
+            const logoBase64 = await invoke('get_logo_base64');
+            if (logoBase64) {
+                if (img) {
+                    img.src = logoBase64;
+                    img.style.display = 'block';
+                }
+                if (placeholder) placeholder.style.display = 'none';
+                if (btnRemover) btnRemover.style.display = 'inline-block';
+            } else {
+                if (img) {
+                    img.src = '';
+                    img.style.display = 'none';
+                }
+                if (placeholder) placeholder.style.display = 'block';
+                if (btnRemover) btnRemover.style.display = 'none';
+            }
+        } catch (_) {}
     } catch (err) {
         showToast('Erro ao carregar configurações: ' + err, 'error');
     }
@@ -1053,7 +1253,17 @@ async function salvarIdentidadeForm(e) {
             empresaTelefone: empresa_telefone,
             normasOs: normas_os
         });
-        showToast('Identidade do sistema salva com sucesso!', 'success');
+
+        if (logoFileSelected) {
+            await invoke('salvar_logo', {
+                base64Data: logoFileSelected.base64Data,
+                extensao: logoFileSelected.extensao
+            });
+            logoFileSelected = null;
+        }
+
+        showToast('Configurações salvas com sucesso!', 'success');
+        loadConfiguracoes();
     } catch (err) {
         showToast(err, 'error');
     }
