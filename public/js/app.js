@@ -556,7 +556,64 @@ async function excluirOrdem(id) {
 async function imprimirOs(id, tipo = 'Entrada') {
     try {
         const dados = await invoke('get_dados_impressao', { id: Number(id), tipo });
-        const { ordem, config } = dados;
+        const { ordem, config, logo_base64 } = dados;
+
+        // Logo da empresa: usa Base64 direto ou fallback
+        let logoHtml = '';
+        if (logo_base64) {
+            logoHtml = `<img src="${logo_base64}" alt="Logo da Empresa" style="max-height: 55px; max-width: 160px; object-fit: contain;" />`;
+        } else {
+            logoHtml = `<div style="font-size: 11px; color: #555; display: inline-flex; align-items: center; gap: 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> Logo da Empresa</div>`;
+        }
+
+        // Metadados (Abertura / Entrega / Funcionário)
+        let metaHtml = '';
+        if (tipo === 'Saída') {
+            metaHtml = `
+            <div class="meta-grid meta-grid-saida">
+                <div>
+                    <div class="campo-rotulo">Data de Abertura:</div>
+                    <div class="campo-conteudo">${formatDate(ordem.data_abertura)}</div>
+                </div>
+                <div>
+                    <div class="campo-rotulo">Data de Entrega:</div>
+                    <div class="campo-conteudo">${formatDate(ordem.data_entrega || ordem.data_abertura)}</div>
+                </div>
+                <div>
+                    <div class="campo-rotulo">Funcionário:</div>
+                    <div class="campo-conteudo">${ordem.funcionario_nome || '-'}</div>
+                </div>
+            </div>`;
+        } else {
+            metaHtml = `
+            <div class="meta-grid meta-grid-entrada">
+                <div>
+                    <div class="campo-rotulo">Data de Abertura:</div>
+                    <div class="campo-conteudo">${formatDate(ordem.data_abertura)}</div>
+                </div>
+                <div>
+                    <div class="campo-rotulo">Funcionário:</div>
+                    <div class="campo-conteudo">${ordem.funcionario_nome || '-'}</div>
+                </div>
+            </div>`;
+        }
+
+        // Seção Detalhes da Finalização (somente na Saída)
+        const finalizacaoHtml = tipo === 'Saída' ? `
+            <div class="secao">
+                <div class="secao-titulo">Detalhes da Finalização</div>
+                <div style="margin-bottom: 8px;">
+                    <div class="campo-rotulo">Motivo:</div>
+                    <div class="campo-conteudo" style="font-weight: bold;">${ordem.motivo_finalizacao || 'Reparo Concluído'}</div>
+                </div>
+                <div class="campo-rotulo">Justificativa / Observações da Finalização:</div>
+                <div class="caixa-texto caixa-finalizacao">${ordem.justificativa_finalizacao || ''}</div>
+            </div>` : '';
+
+        // Formatação do telefone da empresa
+        const telEmpresa = config.empresa_telefone 
+            ? (config.empresa_telefone.toLowerCase().includes('telefone') ? config.empresa_telefone : `Telefone: ${config.empresa_telefone}`)
+            : '';
 
         let iframe = document.getElementById('print-iframe');
         if (!iframe) {
@@ -573,83 +630,328 @@ async function imprimirOs(id, tipo = 'Entrada') {
 
         const doc = iframe.contentWindow.document;
         doc.open();
-        doc.write(`
-            <!DOCTYPE html>
-            <html lang="pt-BR">
-            <head>
-                <meta charset="UTF-8">
-                <title>OS ${ordem.numero_os} - ${tipo}</title>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #222; margin: 0; }
-                    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; padding-bottom: 15px; margin-bottom: 20px; }
-                    .header h1 { margin: 0; font-size: 24px; }
-                    .header p { margin: 3px 0; font-size: 13px; color: #555; }
-                    .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: bold; background: #eee; font-size: 14px; }
-                    .section { margin-bottom: 18px; }
-                    .section h3 { margin: 0 0 8px 0; font-size: 15px; border-bottom: 1px solid #ddd; padding-bottom: 4px; text-transform: uppercase; }
-                    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; }
-                    .normas { font-size: 10px; color: #666; white-space: pre-line; border: 1px dashed #ccc; padding: 10px; border-radius: 4px; margin-top: 20px; }
-                    .assinaturas { margin-top: 40px; display: flex; justify-content: space-around; font-size: 12px; }
-                    .assinatura-linha { border-top: 1px solid #222; width: 220px; text-align: center; padding-top: 5px; }
-                    @media print { body { padding: 15px; } }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <div>
-                        <h1>${config.empresa_nome || 'Cobrinha Games'}</h1>
-                        <p>${config.empresa_endereco || ''}</p>
-                        <p>${config.empresa_telefone || ''}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <span class="badge">OS #${ordem.numero_os}</span>
-                        <p><strong>Comprovante de ${tipo}</strong></p>
-                        <p>Data: ${formatDate(ordem.data_abertura)}</p>
-                    </div>
-                </div>
+        doc.write(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>OS ${ordem.numero_os} - ${tipo}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #222;
+    background: #fff;
+    padding: 22px 28px;
+    line-height: 1.3;
+  }
 
-                <div class="section">
-                    <h3>Dados do Cliente</h3>
-                    <div class="grid">
-                        <div><strong>Nome:</strong> ${ordem.cliente_nome || '-'}</div>
-                        <div><strong>Telefone:</strong> ${maskTel(ordem.cliente_telefone)}</div>
-                        <div><strong>CPF:</strong> ${maskCPF(ordem.cliente_cpf)}</div>
-                    </div>
-                </div>
+  /* ── CABEÇALHO ── */
+  .cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+  }
+  .cabecalho-logo {
+    flex: 0 0 160px;
+  }
+  .cabecalho-info {
+    flex: 1;
+    text-align: center;
+    padding-right: 60px;
+  }
+  .cabecalho-info h1 {
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+  }
+  .cabecalho-info p {
+    font-size: 11px;
+    color: #333;
+    margin-top: 2px;
+  }
+  .linha-cabecalho {
+    border: none;
+    border-top: 2.5px solid #111;
+    margin-bottom: 14px;
+  }
 
-                <div class="section">
-                    <h3>Aparelho</h3>
-                    <div class="grid">
-                        <div><strong>Tipo:</strong> ${ordem.selecao_aparelho || '-'}</div>
-                        <div><strong>Marca/Modelo:</strong> ${ordem.aparelho_marca || ''} ${ordem.aparelho_modelo || ''}</div>
-                        <div><strong>Cor:</strong> ${ordem.aparelho_cor || '-'}</div>
-                        <div><strong>Nº de Série/IMEI:</strong> ${ordem.aparelho_ns || ordem.aparelho_imei || '-'}</div>
-                    </div>
-                </div>
+  /* ── TÍTULO DA OS ── */
+  .titulo-os {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #111;
+    letter-spacing: 0.3px;
+    margin-bottom: 12px;
+  }
 
-                <div class="section">
-                    <h3>Defeito Relatado / Observações</h3>
-                    <p style="font-size: 13px; margin: 4px 0;"><strong>Relato:</strong> ${ordem.descricao_problema || '-'}</p>
-                    <p style="font-size: 13px; margin: 4px 0;"><strong>Estado do Aparelho:</strong> ${ordem.observacoes_aparelho || '-'}</p>
-                    ${ordem.motivo_finalizacao ? `<p style="font-size: 13px; margin: 4px 0;"><strong>Finalização:</strong> ${ordem.motivo_finalizacao} ${ordem.justificativa_finalizacao ? '(' + ordem.justificativa_finalizacao + ')' : ''}</p>` : ''}
-                    <p style="font-size: 15px; margin: 10px 0 0 0;"><strong>Valor Total:</strong> ${formatMoney(ordem.valor)}</p>
-                </div>
+  /* ── METADADOS (DATA / FUNCIONÁRIO) ── */
+  .meta-grid {
+    display: grid;
+    margin-bottom: 16px;
+  }
+  .meta-grid-entrada {
+    grid-template-columns: 200px 1fr;
+  }
+  .meta-grid-saida {
+    grid-template-columns: 200px 200px 1fr;
+  }
 
-                ${config.normas_os ? `<div class="normas"><strong>Termos e Normas:</strong>\n${config.normas_os}</div>` : ''}
+  /* ── SEÇÕES ── */
+  .secao {
+    margin-bottom: 14px;
+  }
+  .secao-titulo {
+    font-size: 12.5px;
+    font-weight: bold;
+    color: #111;
+    border-bottom: 1px solid #d5d5d5;
+    padding-bottom: 3px;
+    margin-bottom: 7px;
+  }
 
-                <div class="assinaturas">
-                    <div class="assinatura-linha">Assinatura do Cliente</div>
-                    <div class="assinatura-linha">Responsável Técnico / Loja</div>
-                </div>
-            </body>
-            </html>
-        `);
+  /* ── GRIDS DE CAMPOS ── */
+  .campos-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr;
+    gap: 8px;
+  }
+  .campos-grid-aparelho {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .campo-rotulo {
+    font-size: 10px;
+    color: #444;
+    margin-bottom: 1px;
+  }
+  .campo-conteudo {
+    font-size: 11.5px;
+    color: #111;
+  }
+
+  /* ── CAIXAS DE TEXTO ── */
+  .caixa-texto {
+    border: 1px solid #cfcfcf;
+    border-radius: 4px;
+    padding: 7px 9px;
+    font-size: 11px;
+    color: #222;
+    background: #fff;
+    margin-top: 2px;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .caixa-problema {
+    min-height: 52px;
+  }
+  .caixa-observacoes {
+    min-height: 72px;
+  }
+  .caixa-finalizacao {
+    min-height: 48px;
+  }
+
+  /* ── VALOR TOTAL ── */
+  .valor-container {
+    text-align: right;
+    margin-top: 10px;
+    margin-bottom: 14px;
+  }
+  .valor-label {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+  }
+  .valor-destaque {
+    font-size: 17px;
+    font-weight: bold;
+    color: #111;
+  }
+
+  /* ── NORMAS IMPORTANTES ── */
+  .normas-container {
+    border-top: 1px dotted #bbb;
+    padding-top: 8px;
+    margin-bottom: 24px;
+  }
+  .normas-titulo {
+    font-size: 10px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 3px;
+  }
+  .normas-texto {
+    font-size: 9px;
+    color: #333;
+    line-height: 1.38;
+  }
+
+  /* ── ASSINATURAS ── */
+  .assinaturas-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 32px;
+    padding: 0 10px;
+  }
+  .assinatura-bloco {
+    text-align: center;
+    width: 240px;
+  }
+  .assinatura-linha {
+    border-top: 1.8px solid #111;
+    margin-bottom: 4px;
+  }
+  .assinatura-rotulo {
+    font-size: 11px;
+    font-weight: bold;
+    color: #111;
+  }
+
+  @media print {
+    body {
+      padding: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- CABEÇALHO -->
+<div class="cabecalho">
+  <div class="cabecalho-logo">${logoHtml}</div>
+  <div class="cabecalho-info">
+    <h1>${config.empresa_nome || 'COBRINHA GAMES'}</h1>
+    <p>${config.empresa_endereco || ''}</p>
+    <p>${telEmpresa}</p>
+  </div>
+</div>
+<hr class="linha-cabecalho">
+
+<!-- TÍTULO DA ORDEM -->
+<div class="titulo-os">ORDEM DE SERVIÇO (${tipo.toUpperCase()}) Nº ${ordem.numero_os}</div>
+
+<!-- METADADOS -->
+${metaHtml}
+
+<!-- DADOS DO CLIENTE -->
+<div class="secao">
+  <div class="secao-titulo">Dados do Cliente</div>
+  <div class="campos-grid-3">
+    <div>
+      <div class="campo-rotulo">Nome:</div>
+      <div class="campo-conteudo">${ordem.cliente_nome || '-'}</div>
+    </div>
+    <div>
+      <div class="campo-rotulo">Telefone:</div>
+      <div class="campo-conteudo">${maskTel(ordem.cliente_telefone) || 'Não informado'}</div>
+    </div>
+    <div>
+      <div class="campo-rotulo">CPF/CNPJ:</div>
+      <div class="campo-conteudo">${maskCPF(ordem.cliente_cpf) || '-'}</div>
+    </div>
+  </div>
+</div>
+
+<!-- DADOS DO APARELHO -->
+<div class="secao">
+  <div class="secao-titulo">Dados do Aparelho</div>
+  <div class="campos-grid-aparelho">
+    <div>
+      <div class="campo-rotulo">Tipo:</div>
+      <div class="campo-conteudo">${ordem.selecao_aparelho || '-'}</div>
+    </div>
+    <div>
+      <div class="campo-rotulo">Marca:</div>
+      <div class="campo-conteudo">${ordem.aparelho_marca || '-'}</div>
+    </div>
+    <div>
+      <div class="campo-rotulo">Modelo:</div>
+      <div class="campo-conteudo">${ordem.aparelho_modelo || '-'}</div>
+    </div>
+  </div>
+  <div class="campos-grid-aparelho">
+    <div>
+      <div class="campo-rotulo">Cor:</div>
+      <div class="campo-conteudo">${ordem.aparelho_cor || '-'}</div>
+    </div>
+    <div>
+      <div class="campo-rotulo">Número de Série:</div>
+      <div class="campo-conteudo">${ordem.aparelho_ns || '-'}</div>
+    </div>
+    <div>
+      <div class="campo-rotulo">IMEI:</div>
+      <div class="campo-conteudo">${ordem.aparelho_imei || '-'}</div>
+    </div>
+  </div>
+</div>
+
+<!-- DETALHES DO SERVIÇO -->
+<div class="secao">
+  <div class="secao-titulo">Detalhes do Serviço</div>
+  <div class="campo-rotulo">Problema Relatado:</div>
+  <div class="caixa-texto caixa-problema">${ordem.descricao_problema || ''}</div>
+  <div class="campo-rotulo">Estado do Aparelho / Observações:</div>
+  <div class="caixa-texto caixa-observacoes">${ordem.observacoes_aparelho || ''}</div>
+</div>
+
+<!-- DETALHES DA FINALIZAÇÃO (SE SAÍDA) -->
+${finalizacaoHtml}
+
+<!-- VALOR TOTAL -->
+<div class="valor-container">
+  <span class="valor-label">Valor Total:</span> <span class="valor-destaque">${formatMoney(ordem.valor)}</span>
+</div>
+
+<!-- NORMAS IMPORTANTES -->
+${config.normas_os ? `
+<div class="normas-container">
+  <div class="normas-titulo">Normas Importantes:</div>
+  <div class="normas-texto">${config.normas_os.split('\n').filter(l => l.trim()).join('<br>')}</div>
+</div>` : ''}
+
+<!-- ASSINATURAS -->
+<div class="assinaturas-container">
+  <div class="assinatura-bloco">
+    <div class="assinatura-linha"></div>
+    <div class="assinatura-rotulo">Assinatura do Atendente</div>
+  </div>
+  <div class="assinatura-bloco">
+    <div class="assinatura-linha"></div>
+    <div class="assinatura-rotulo">Assinatura do Cliente</div>
+  </div>
+</div>
+
+</body>
+</html>`);
         doc.close();
 
         setTimeout(() => {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
-        }, 200);
+        }, 300);
+    } catch (err) {
+        showToast('Erro ao carregar dados para impressão: ' + err, 'error');
+    }
+}
+        doc.close();
+
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }, 300);
     } catch (err) {
         showToast('Erro ao carregar dados para impressão: ' + err, 'error');
     }

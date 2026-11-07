@@ -644,6 +644,69 @@ pub fn excluir_ordem(id: i64, state: tauri::State<DatabaseState>) -> Result<(), 
     Ok(())
 }
 
+fn bytes_to_base64(bytes: &[u8]) -> String {
+    const CHARSET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut result = String::with_capacity((bytes.len() + 2) / 3 * 4);
+    for chunk in bytes.chunks(3) {
+        let b0 = chunk[0] as usize;
+        let b1 = chunk.get(1).copied().unwrap_or(0) as usize;
+        let b2 = chunk.get(2).copied().unwrap_or(0) as usize;
+        let triple = (b0 << 16) | (b1 << 8) | b2;
+        result.push(CHARSET[(triple >> 18) & 0x3F] as char);
+        result.push(CHARSET[(triple >> 12) & 0x3F] as char);
+        if chunk.len() > 1 {
+            result.push(CHARSET[(triple >> 6) & 0x3F] as char);
+        } else {
+            result.push('=');
+        }
+        if chunk.len() > 2 {
+            result.push(CHARSET[triple & 0x3F] as char);
+        } else {
+            result.push('=');
+        }
+    }
+    result
+}
+
+fn resolver_logo_base64(logo_path: &Option<String>, db_path: &std::path::Path) -> Option<String> {
+    let rel = logo_path.as_ref()?;
+    if rel.trim().is_empty() {
+        return None;
+    }
+
+    let p1 = std::path::PathBuf::from(rel);
+    let mut candidatos = vec![p1];
+
+    let clean = rel.trim_start_matches('/').trim_start_matches('\\');
+    if let Some(app_dir) = db_path.parent().and_then(|p| p.parent()) {
+        candidatos.push(app_dir.join(clean));
+        candidatos.push(app_dir.join("uploads").join(clean.trim_start_matches("uploads/").trim_start_matches("uploads\\")));
+    }
+    if let Some(roaming) = dirs::data_dir() {
+        let uploads_dir = roaming.join("ordens-de-servico-cobrinha").join("uploads");
+        let filename = std::path::Path::new(clean).file_name().unwrap_or_default();
+        candidatos.push(uploads_dir.join(filename));
+    }
+
+    for path in candidatos {
+        if path.is_file() {
+            if let Ok(bytes) = std::fs::read(&path) {
+                let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("png").to_lowercase();
+                let mime = match ext.as_str() {
+                    "jpg" | "jpeg" => "image/jpeg",
+                    "svg" => "image/svg+xml",
+                    "webp" => "image/webp",
+                    "gif" => "image/gif",
+                    _ => "image/png",
+                };
+                let b64 = bytes_to_base64(&bytes);
+                return Some(format!("data:{};base64,{}", mime, b64));
+            }
+        }
+    }
+    None
+}
+
 #[tauri::command]
 pub fn get_dados_impressao(
     id: i64,
@@ -651,11 +714,14 @@ pub fn get_dados_impressao(
     state: tauri::State<DatabaseState>,
 ) -> Result<DadosImpressao, String> {
     let ordem = get_ordem(id, state.clone())?;
-    let config = get_configuracoes(state)?;
+    let config = get_configuracoes(state.clone())?;
+    let logo_base64 = resolver_logo_base64(&config.logo_path, &state.path);
+
     Ok(DadosImpressao {
         ordem,
         config,
         tipo,
+        logo_base64,
     })
 }
 

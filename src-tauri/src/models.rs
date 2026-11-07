@@ -110,5 +110,6 @@ pub struct DadosImpressao {
     pub ordem: Ordem,
     pub config: Configuracoes,
     pub tipo: String,
+    pub logo_base64: Option<String>,
 }
 
